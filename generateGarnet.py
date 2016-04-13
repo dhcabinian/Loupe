@@ -1,4 +1,5 @@
 from PyQt4 import QtCore, QtGui
+import sys
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -163,12 +164,12 @@ class Ui_GenerateGarnetNetworkWindow(object):
         return runCommand
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtGui.QApplication(sys.argv)
-#     GenerateGarnetNetworkWindow = QtGui.QMainWindow()
-#     ui = Ui_GenerateGarnetNetworkWindow()
-#     ui.setupUi(GenerateGarnetNetworkWindow)
-#     GenerateGarnetNetworkWindow.show()
-#     sys.exit(app.exec_())
+if __name__ == "__main__":
+
+    app = QtGui.QApplication(sys.argv)
+    GenerateGarnetNetworkWindow = QtGui.QMainWindow()
+    ui = Ui_GenerateGarnetNetworkWindow()
+    ui.setupUi(GenerateGarnetNetworkWindow)
+    GenerateGarnetNetworkWindow.show()
+    sys.exit(app.exec_())
 

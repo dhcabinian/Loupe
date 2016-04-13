@@ -85,3 +85,4 @@ class Network(QtGui.QWidget):
             return None
         else:
             Network.CYCLE_NUMBER = int(cycleNum)
+        return Network.CYCLE_NUMBER

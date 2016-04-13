@@ -4,6 +4,7 @@ from networkAttr import networkAttr
 from drawAttr import drawAttr
 from CoreExploded import CoreExploded
 from CoreInformation import CoreInfo
+from generateGarnet import Ui_GenerateGarnetNetworkWindow
 import sys
 
 try:
@@ -30,7 +31,7 @@ class Ui_GuiMainWindow(object):
         self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
 
-        self.GuiNetwork = Network(self.centralwidget, "Mesh", 16, 4, 8, 200)
+        self.GuiNetwork = Network(self.centralwidget, "Mesh", 16, 4, 8, 5000)
         networkSize = self.calculateNetworkSize(16, 4)
         self.GuiNetwork.setMinimumSize(networkSize)
         self.GuiNetwork.setObjectName(_fromUtf8("GuiNetworkFrame"))
@@ -51,25 +52,9 @@ class Ui_GuiMainWindow(object):
         self.explodedCoreView.setObjectName(_fromUtf8("explodedCoreView"))
         self.verticalLayout.addWidget(self.explodedCoreView)
 
-
-        # self.GuiCoreCloseFrame = QtGui.QFrame(self.centralwidget)
-        # self.GuiCoreCloseFrame.setMinimumSize(QtCore.QSize(300, 300))
-        # self.GuiCoreCloseFrame.setObjectName(_fromUtf8("GuiCoreCloseFrame"))
-        # self.verticalLayout.addWidget(self.GuiCoreCloseFrame)
-
-
         self.GuiCoreInfo = CoreInfo(self.centralwidget, self.GuiNetwork.cores[0])
         self.GuiCoreInfo.setObjectName(_fromUtf8("GuiCoreInfo"))
         self.verticalLayout.addWidget(self.GuiCoreInfo)
-
-        # self.GuiCoreInfoFrame = QtGui.QFrame(self.centralwidget)
-        # self.GuiCoreInfoFrame.setFrameShape(QtGui.QFrame.StyledPanel)
-        # self.GuiCoreInfoFrame.setFrameShadow(QtGui.QFrame.Raised)
-        # self.GuiCoreInfoFrame.setObjectName(_fromUtf8("GuiCoreInfoFrame"))
-        # self.verticalLayout.addWidget(self.GuiCoreInfoFrame)
-
-
-
 
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
@@ -120,20 +105,28 @@ class Ui_GuiMainWindow(object):
         self.actionGo_To_Cycle = QtGui.QAction(GuiMainWindow)
         self.actionGo_To_Cycle.setObjectName(_fromUtf8("actionGo_To_Cycle"))
         self.GuiGoTo0MenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGoTo0MenuAction.triggered.connect(self.go_to_cycle_0)
         self.GuiGoTo0MenuAction.setObjectName(_fromUtf8("GuiGoTo0MenuAction"))
         self.GuiGoTo500MenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGoTo500MenuAction.triggered.connect(self.go_to_cycle_500)
         self.GuiGoTo500MenuAction.setObjectName(_fromUtf8("GuiGoTo500MenuAction"))
         self.GuiGoToCycleMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGoToCycleMenuAction.triggered.connect(self.got_to_cycle_X)
         self.GuiGoToCycleMenuAction.setObjectName(_fromUtf8("GuiGoToCycleMenuAction"))
         self.GuiGarnetGenerateMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGarnetGenerateMenuAction.triggered.connect(self.garnet_generator)
         self.GuiGarnetGenerateMenuAction.setObjectName(_fromUtf8("GuiGarnetGenerateMenuAction"))
         self.GuiGarnetHelpMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGarnetHelpMenuAction.setShortcut("Ctrl+H")
+        self.GuiGarnetHelpMenuAction.triggered.connect(self.garnet_help)
         self.GuiGarnetHelpMenuAction.setObjectName(_fromUtf8("GuiGarnetHelpMenuAction"))
         self.GuiFileOpenTraceMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiFileOpenTraceMenuAction.setShortcut("Ctrl+O")
+        self.GuiFileOpenTraceMenuAction.triggered.connect(self.file_open_trace)
         self.GuiFileOpenTraceMenuAction.setObjectName(_fromUtf8("GuiFileOpenTraceMenuAction"))
         self.GuiFileExitMenuAction = QtGui.QAction(GuiMainWindow)
         self.GuiFileExitMenuAction.setShortcut("Ctrl+Q")
-        #self.GuiFileExitMenuAction.triggered.connect(self.quit_application())
+        self.GuiFileExitMenuAction.triggered.connect(self.quit_application)
         self.GuiFileExitMenuAction.setObjectName(_fromUtf8("GuiFileExitMenuAction"))
 
 
@@ -147,10 +140,6 @@ class Ui_GuiMainWindow(object):
         self.GuiMenuBar.addAction(self.GuiFileMenu.menuAction())
         self.GuiMenuBar.addAction(self.GuiGoToMenu.menuAction())
         self.GuiMenuBar.addAction(self.GuiGarnetMenu.menuAction())
-
-
-        #self.GuiFileExitMenuAction.triggered.connect(self.quit_application())
-
 
         self.retranslateUi(GuiMainWindow)
         QtCore.QMetaObject.connectSlotsByName(GuiMainWindow)
@@ -208,7 +197,7 @@ class Ui_GuiMainWindow(object):
         self.GuiCoreInfo.updateCoreInfo(self.GuiNetwork.cores[core_num])
         self.GuiCoreInfo.update()
 
-    def file_open(self):
+    def file_open_trace(self):
         name = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
         file = open(name, 'r')
 
@@ -216,3 +205,34 @@ class Ui_GuiMainWindow(object):
     def quit_application(self):
         print("Closing App...")
         sys.exit()
+
+    def garnet_generator(self):
+        print("Garnet")
+        garnetUi = Ui_GenerateGarnetNetworkWindow()
+        garnetUi.show()
+
+
+    def garnet_help(self):
+        print("Garnet Help")
+
+    def go_to_cycle_0(self):
+        cycle_num = self.GuiNetwork.goToCycle(0)
+        if cycle_num is not None:
+            self.GuiCycleProgressBar.setValue(cycle_num/networkAttr.ATTR_NET_TOTCYCLES * 100)
+            self.GuiCycleCounter.display(cycle_num)
+
+    def go_to_cycle_500(self):
+        cycle_num = self.GuiNetwork.goToCycle(500)
+        if cycle_num is not None:
+            self.GuiCycleProgressBar.setValue(cycle_num/networkAttr.ATTR_NET_TOTCYCLES * 100)
+            self.GuiCycleCounter.display(cycle_num)
+
+    def got_to_cycle_X(self):
+        inputDialog = QtGui.QWidget()
+        text, ok = QtGui.QInputDialog.getText(inputDialog, 'Input Cycle Number', 'Enter Cycle:')
+        if ok and int(text) >= 0:
+            cycle_num = self.GuiNetwork.goToCycle(int(text))
+            print (cycle_num)
+            if cycle_num is not None:
+                self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.ATTR_NET_TOTCYCLES * 100)
+                self.GuiCycleCounter.display(cycle_num)
