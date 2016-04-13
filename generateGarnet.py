@@ -15,12 +15,13 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-class Ui_GenerateGarnetNetworkWindow(object):
-    def setupUi(self, GenerateGarnetNetworkWindow):
-        GenerateGarnetNetworkWindow.setObjectName(_fromUtf8("GenerateGarnetNetworkWindow"))
-        GenerateGarnetNetworkWindow.resize(513, 500)
-        GenerateGarnetNetworkWindow.setMaximumSize(QtCore.QSize(1000, 500))
-        self.centralwidget = QtGui.QWidget(GenerateGarnetNetworkWindow)
+class UI_generate_Garnet(QtGui.QMainWindow):
+    def __init__(self):
+        super(UI_generate_Garnet, self).__init__()
+        self.setObjectName(_fromUtf8("self"))
+        self.resize(513, 500)
+        self.setMaximumSize(QtCore.QSize(1000, 500))
+        self.centralwidget = QtGui.QWidget(self)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
@@ -100,30 +101,30 @@ class Ui_GenerateGarnetNetworkWindow(object):
 
 
         self.horizontalLayout.addLayout(self.verticalLayout)
-        GenerateGarnetNetworkWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtGui.QMenuBar(GenerateGarnetNetworkWindow)
+        self.setCentralWidget(self.centralwidget)
+        self.menubar = QtGui.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 513, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
-        GenerateGarnetNetworkWindow.setMenuBar(self.menubar)
-        self.statusbar = QtGui.QStatusBar(GenerateGarnetNetworkWindow)
+        self.setMenuBar(self.menubar)
+        self.statusbar = QtGui.QStatusBar(self)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
-        GenerateGarnetNetworkWindow.setStatusBar(self.statusbar)
+        self.setStatusBar(self.statusbar)
 
-        self.retranslateUi(GenerateGarnetNetworkWindow)
-        QtCore.QMetaObject.connectSlotsByName(GenerateGarnetNetworkWindow)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self)
 
-    def retranslateUi(self, GenerateGarnetNetworkWindow):
-        GenerateGarnetNetworkWindow.setWindowTitle(_translate("GenerateGarnetNetworkWindow", "Generate Garnet Network", None))
-        self.label_topology_options.setText(_translate("GenerateGarnetNetworkWindow", "Topology Options", None))
-        self.combo_topology.setItemText(0, _translate("GenerateGarnetNetworkWindow", "Mesh", None))
-        self.label_simulation_options.setText(_translate("GenerateGarnetNetworkWindow", "Simulation Options", None))
-        self.combo_traffic.setItemText(0, _translate("GenerateGarnetNetworkWindow", "Uniform Random Traffic", None))
-        self.combo_traffic.setItemText(1, _translate("GenerateGarnetNetworkWindow", "Tornado Traffic", None))
-        self.combo_traffic.setItemText(2, _translate("GenerateGarnetNetworkWindow", "Bit Complement Traffic", None))
-        self.combo_algorithm.setItemText(0, _translate("GenerateGarnetNetworkWindow", "XY Routing", None))
-        self.combo_algorithm.setItemText(1, _translate("GenerateGarnetNetworkWindow", "George Routing", None))
-        self.combo_algorithm.setItemText(2, _translate("GenerateGarnetNetworkWindow", "Escape VC Routing", None))
-        self.pb_createRunCommand.setText(_translate("GenerateGarnetNetworkWindow", "Create Run Command", None))
+    def retranslateUi(self):
+        self.setWindowTitle(_translate("self", "Generate Garnet Network", None))
+        self.label_topology_options.setText(_translate("self", "Topology Options", None))
+        self.combo_topology.setItemText(0, _translate("self", "Mesh", None))
+        self.label_simulation_options.setText(_translate("self", "Simulation Options", None))
+        self.combo_traffic.setItemText(0, _translate("self", "Uniform Random Traffic", None))
+        self.combo_traffic.setItemText(1, _translate("self", "Tornado Traffic", None))
+        self.combo_traffic.setItemText(2, _translate("self", "Bit Complement Traffic", None))
+        self.combo_algorithm.setItemText(0, _translate("self", "XY Routing", None))
+        self.combo_algorithm.setItemText(1, _translate("self", "George Routing", None))
+        self.combo_algorithm.setItemText(2, _translate("self", "Escape VC Routing", None))
+        self.pb_createRunCommand.setText(_translate("self", "Create Run Command", None))
 
 
     def showGarnetCmd(self):
@@ -164,12 +165,12 @@ class Ui_GenerateGarnetNetworkWindow(object):
         return runCommand
 
 
-if __name__ == "__main__":
-
-    app = QtGui.QApplication(sys.argv)
-    GenerateGarnetNetworkWindow = QtGui.QMainWindow()
-    ui = Ui_GenerateGarnetNetworkWindow()
-    ui.setupUi(GenerateGarnetNetworkWindow)
-    GenerateGarnetNetworkWindow.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#
+#     app = QtGui.QApplication(sys.argv)
+#     self = QtGui.QMainWindow()
+#     ui = Ui_self()
+#     ui.setupUi(self)
+#     self.show()
+#     sys.exit(app.exec_())
 

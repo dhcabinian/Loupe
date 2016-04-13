@@ -4,7 +4,7 @@ from networkAttr import networkAttr
 from drawAttr import drawAttr
 from CoreExploded import CoreExploded
 from CoreInformation import CoreInfo
-from generateGarnet import Ui_GenerateGarnetNetworkWindow
+from generateGarnet import UI_generate_Garnet
 import sys
 
 try:
@@ -22,12 +22,14 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 
-class Ui_GuiMainWindow(object):
-    def setupUi(self, GuiMainWindow):
+class UI_Network_Main_Window(QtGui.QMainWindow):
+    def __init__(self):
+        super(UI_Network_Main_Window, self).__init__()
+    #def setupUi(self, self):
         self.garnetUi = None
-        GuiMainWindow.setObjectName(_fromUtf8("GuiMainWindow"))
-        GuiMainWindow.resize(1290, 890)
-        self.centralwidget = QtGui.QWidget(GuiMainWindow)
+        self.setObjectName(_fromUtf8("UI_Network_Main_Window"))
+        self.resize(1290, 890)
+        self.centralwidget = QtGui.QWidget(self)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
@@ -83,10 +85,10 @@ class Ui_GuiMainWindow(object):
         self.GuiCycleProgressBar.setObjectName(_fromUtf8("GuiCycleProgressBar"))
         self.verticalLayout.addWidget(self.GuiCycleProgressBar)
         self.horizontalLayout.addLayout(self.verticalLayout)
-        GuiMainWindow.setCentralWidget(self.centralwidget)
+        self.setCentralWidget(self.centralwidget)
 
         #Menu Bar
-        self.GuiMenuBar = QtGui.QMenuBar(GuiMainWindow)
+        self.GuiMenuBar = QtGui.QMenuBar(self)
         self.GuiMenuBar.setGeometry(QtCore.QRect(0, 0, 1290, 21))
         self.GuiMenuBar.setObjectName(_fromUtf8("GuiMenuBar"))
         self.GuiFileMenu = QtGui.QMenu(self.GuiMenuBar)
@@ -95,37 +97,37 @@ class Ui_GuiMainWindow(object):
         self.GuiGoToMenu.setObjectName(_fromUtf8("GuiGoToMenu"))
         self.GuiGarnetMenu = QtGui.QMenu(self.GuiMenuBar)
         self.GuiGarnetMenu.setObjectName(_fromUtf8("GuiGarnetMenu"))
-        GuiMainWindow.setMenuBar(self.GuiMenuBar)
+        self.setMenuBar(self.GuiMenuBar)
 
         #Status Bar
-        self.statusbar = QtGui.QStatusBar(GuiMainWindow)
+        self.statusbar = QtGui.QStatusBar(self)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
-        GuiMainWindow.setStatusBar(self.statusbar)
+        self.setStatusBar(self.statusbar)
 
         #Menu Bar Items
-        self.actionGo_To_Cycle = QtGui.QAction(GuiMainWindow)
+        self.actionGo_To_Cycle = QtGui.QAction(self)
         self.actionGo_To_Cycle.setObjectName(_fromUtf8("actionGo_To_Cycle"))
-        self.GuiGoTo0MenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGoTo0MenuAction = QtGui.QAction(self)
         self.GuiGoTo0MenuAction.triggered.connect(self.go_to_cycle_0)
         self.GuiGoTo0MenuAction.setObjectName(_fromUtf8("GuiGoTo0MenuAction"))
-        self.GuiGoTo500MenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGoTo500MenuAction = QtGui.QAction(self)
         self.GuiGoTo500MenuAction.triggered.connect(self.go_to_cycle_500)
         self.GuiGoTo500MenuAction.setObjectName(_fromUtf8("GuiGoTo500MenuAction"))
-        self.GuiGoToCycleMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGoToCycleMenuAction = QtGui.QAction(self)
         self.GuiGoToCycleMenuAction.triggered.connect(self.got_to_cycle_X)
         self.GuiGoToCycleMenuAction.setObjectName(_fromUtf8("GuiGoToCycleMenuAction"))
-        self.GuiGarnetGenerateMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGarnetGenerateMenuAction = QtGui.QAction(self)
         self.GuiGarnetGenerateMenuAction.triggered.connect(self.garnet_generator)
         self.GuiGarnetGenerateMenuAction.setObjectName(_fromUtf8("GuiGarnetGenerateMenuAction"))
-        self.GuiGarnetHelpMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiGarnetHelpMenuAction = QtGui.QAction(self)
         self.GuiGarnetHelpMenuAction.setShortcut("Ctrl+H")
         self.GuiGarnetHelpMenuAction.triggered.connect(self.garnet_help)
         self.GuiGarnetHelpMenuAction.setObjectName(_fromUtf8("GuiGarnetHelpMenuAction"))
-        self.GuiFileOpenTraceMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiFileOpenTraceMenuAction = QtGui.QAction(self)
         self.GuiFileOpenTraceMenuAction.setShortcut("Ctrl+O")
         self.GuiFileOpenTraceMenuAction.triggered.connect(self.file_open_trace)
         self.GuiFileOpenTraceMenuAction.setObjectName(_fromUtf8("GuiFileOpenTraceMenuAction"))
-        self.GuiFileExitMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiFileExitMenuAction = QtGui.QAction(self)
         self.GuiFileExitMenuAction.setShortcut("Ctrl+Q")
         self.GuiFileExitMenuAction.triggered.connect(self.quit_application)
         self.GuiFileExitMenuAction.setObjectName(_fromUtf8("GuiFileExitMenuAction"))
@@ -142,25 +144,25 @@ class Ui_GuiMainWindow(object):
         self.GuiMenuBar.addAction(self.GuiGoToMenu.menuAction())
         self.GuiMenuBar.addAction(self.GuiGarnetMenu.menuAction())
 
-        self.retranslateUi(GuiMainWindow)
-        QtCore.QMetaObject.connectSlotsByName(GuiMainWindow)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self)
 
 
-    def retranslateUi(self, GuiMainWindow):
-        GuiMainWindow.setWindowTitle(_translate("GuiMainWindow", "Loupe", None))
-        self.GuiPreviousCyclePb.setText(_translate("GuiMainWindow", "Previous Cycle", None))
-        self.GuiNextCyclePb.setText(_translate("GuiMainWindow", "Next Cycle", None))
-        self.GuiFileMenu.setTitle(_translate("GuiMainWindow", "File", None))
-        self.GuiGoToMenu.setTitle(_translate("GuiMainWindow", "Go To", None))
-        self.GuiGarnetMenu.setTitle(_translate("GuiMainWindow", "Garnet", None))
-        self.actionGo_To_Cycle.setText(_translate("GuiMainWindow", "Go To Cycle...", None))
-        self.GuiGoTo0MenuAction.setText(_translate("GuiMainWindow", "Cycle 0", None))
-        self.GuiGoTo500MenuAction.setText(_translate("GuiMainWindow", "Cycle 500", None))
-        self.GuiGoToCycleMenuAction.setText(_translate("GuiMainWindow", "Cycle ...", None))
-        self.GuiGarnetGenerateMenuAction.setText(_translate("GuiMainWindow", "Generate Garnet Run Command", None))
-        self.GuiGarnetHelpMenuAction.setText(_translate("GuiMainWindow", "Help", None))
-        self.GuiFileOpenTraceMenuAction.setText(_translate("GuiMainWindow", "Open Trace...", None))
-        self.GuiFileExitMenuAction.setText(_translate("GuiMainWindow", "Quit", None))
+    def retranslateUi(self):
+        self.setWindowTitle(_translate("self", "Loupe", None))
+        self.GuiPreviousCyclePb.setText(_translate("self", "Previous Cycle", None))
+        self.GuiNextCyclePb.setText(_translate("self", "Next Cycle", None))
+        self.GuiFileMenu.setTitle(_translate("self", "File", None))
+        self.GuiGoToMenu.setTitle(_translate("self", "Go To", None))
+        self.GuiGarnetMenu.setTitle(_translate("self", "Garnet", None))
+        self.actionGo_To_Cycle.setText(_translate("self", "Go To Cycle...", None))
+        self.GuiGoTo0MenuAction.setText(_translate("self", "Cycle 0", None))
+        self.GuiGoTo500MenuAction.setText(_translate("self", "Cycle 500", None))
+        self.GuiGoToCycleMenuAction.setText(_translate("self", "Cycle ...", None))
+        self.GuiGarnetGenerateMenuAction.setText(_translate("self", "Generate Garnet Run Command", None))
+        self.GuiGarnetHelpMenuAction.setText(_translate("self", "Help", None))
+        self.GuiFileOpenTraceMenuAction.setText(_translate("self", "Open Trace...", None))
+        self.GuiFileExitMenuAction.setText(_translate("self", "Quit", None))
 
     def calculateNetworkSize(self, cores, rows):
         width = networkAttr.ATTR_CORE_COLS * drawAttr.DRAW_CORE_SIZE\
@@ -187,7 +189,7 @@ class Ui_GuiMainWindow(object):
         for index in range(core_num):
             self.GuiCoreSelectorCombo.addItem(_fromUtf8(""))
             coreSelectText = "Core " + str(index)
-            self.GuiCoreSelectorCombo.setItemText(index, _translate("GuiMainWindow", coreSelectText, None))
+            self.GuiCoreSelectorCombo.setItemText(index, _translate("self", coreSelectText, None))
 
     def closeViewCore(self):
         core_num = self.GuiCoreSelectorCombo.currentIndex()
@@ -209,7 +211,7 @@ class Ui_GuiMainWindow(object):
 
     def garnet_generator(self):
         print("Garnet")
-        self.garnetUi = Ui_GenerateGarnetNetworkWindow()
+        self.garnetUi = UI_generate_Garnet()
         self.garnetUi.show()
 
 

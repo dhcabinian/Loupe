@@ -1,4 +1,4 @@
-from mainwindow import Ui_GuiMainWindow
+from mainwindow import UI_Network_Main_Window
 from PyQt4 import QtCore, QtGui
 
 # if __name__ == '__main__':
@@ -10,8 +10,9 @@ from PyQt4 import QtCore, QtGui
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
-    GuiMainWindow = QtGui.QMainWindow()
-    ui = Ui_GuiMainWindow()
-    ui.setupUi(GuiMainWindow)
+    GuiMainWindow = UI_Network_Main_Window()
+    # GuiMainWindow = QtGui.QMainWindow()
+    # ui = Ui_GuiMainWindow()
+    # ui.setupUi(GuiMainWindow)
     GuiMainWindow.show()
     sys.exit(app.exec_())
