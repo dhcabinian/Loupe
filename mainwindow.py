@@ -24,6 +24,7 @@ except AttributeError:
 
 class Ui_GuiMainWindow(object):
     def setupUi(self, GuiMainWindow):
+        self.garnetUi = None
         GuiMainWindow.setObjectName(_fromUtf8("GuiMainWindow"))
         GuiMainWindow.resize(1290, 890)
         self.centralwidget = QtGui.QWidget(GuiMainWindow)
@@ -208,8 +209,8 @@ class Ui_GuiMainWindow(object):
 
     def garnet_generator(self):
         print("Garnet")
-        garnetUi = Ui_GenerateGarnetNetworkWindow()
-        garnetUi.show()
+        self.garnetUi = Ui_GenerateGarnetNetworkWindow()
+        self.garnetUi.show()
 
 
     def garnet_help(self):
