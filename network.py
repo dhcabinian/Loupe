@@ -6,11 +6,13 @@ from PyQt4 import QtGui
 
 
 class Network(QtGui.QWidget):
-    def __init__(self, parent, topology, num_cores, num_rows, vcs_per_vnet):
+    CYCLE_NUMBER = 0
+
+    def __init__(self, parent, topology, num_cores, num_rows, vcs_per_vnet, net_cycle):
         super(Network, self).__init__()
         self.setParent(parent)
         self.topology = topology
-        networkAttr(num_rows, num_cores / num_rows, num_cores, vcs_per_vnet)
+        networkAttr(num_rows, num_cores / num_rows, num_cores, vcs_per_vnet, net_cycle)
         # Setup QWidget Attributes
         side = drawAttr.DRAW_CORE_SIZE * networkAttr.ATTR_CORE_CORES\
                + drawAttr.DRAW_LINK_LENGTH * (networkAttr.ATTR_CORE_CORES - 1)
@@ -61,3 +63,25 @@ class Network(QtGui.QWidget):
         #qp.translate(0, 21)
         self.drawNetwork(qp)
         qp.end()
+
+    def nextCycle(self):
+        if Network.CYCLE_NUMBER == networkAttr.ATTR_NET_TOTCYCLES:
+            return None
+        else:
+            Network.CYCLE_NUMBER += 1
+        return Network.CYCLE_NUMBER
+
+    def prevCycle(self):
+        if Network.CYCLE_NUMBER == 0:
+            return None
+        else:
+            Network.CYCLE_NUMBER -= 1
+        return Network.CYCLE_NUMBER
+
+    def goToCycle(self, cycleNum):
+        if cycleNum < 0:
+            return None
+        elif cycleNum > networkAttr.ATTR_NET_TOTCYCLES:
+            return None
+        else:
+            Network.CYCLE_NUMBER = int(cycleNum)

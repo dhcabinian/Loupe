@@ -2,6 +2,7 @@ from PyQt4 import QtGui, QtCore
 from network import Network
 from networkAttr import networkAttr
 from drawAttr import drawAttr
+import sys
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -27,7 +28,7 @@ class Ui_GuiMainWindow(object):
         self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
 
-        self.GuiNetwork = Network(self.centralwidget, "Mesh", 16, 4, 8)
+        self.GuiNetwork = Network(self.centralwidget, "Mesh", 16, 4, 8, 200)
         networkSize = self.calculateNetworkSize(16, 4)
         self.GuiNetwork.setMinimumSize(networkSize)
         self.GuiNetwork.setObjectName(_fromUtf8("GuiNetworkFrame"))
@@ -49,6 +50,7 @@ class Ui_GuiMainWindow(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
 
+        #Pushbuttons
         self.GuiPreviousCyclePb = QtGui.QPushButton(self.centralwidget)
         self.GuiPreviousCyclePb.setObjectName(_fromUtf8("GuiPreviousCyclePb"))
         self.GuiPreviousCyclePb.clicked.connect(self.previous_cycle)
@@ -58,17 +60,22 @@ class Ui_GuiMainWindow(object):
         self.GuiNextCyclePb.clicked.connect(self.next_cycle)
         self.horizontalLayout_2.addWidget(self.GuiNextCyclePb)
 
+        #LCD Cycle Counter
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.GuiCycleCounter = QtGui.QLCDNumber(self.centralwidget)
         self.GuiCycleCounter.setMaximumSize(QtCore.QSize(16777215, 30))
         self.GuiCycleCounter.setObjectName(_fromUtf8("GuiCycleCounter"))
         self.verticalLayout.addWidget(self.GuiCycleCounter)
+
+        #Cycle Progress Bar
         self.GuiCycleProgressBar = QtGui.QProgressBar(self.centralwidget)
         self.GuiCycleProgressBar.setProperty("value", 0)
         self.GuiCycleProgressBar.setObjectName(_fromUtf8("GuiCycleProgressBar"))
         self.verticalLayout.addWidget(self.GuiCycleProgressBar)
         self.horizontalLayout.addLayout(self.verticalLayout)
         GuiMainWindow.setCentralWidget(self.centralwidget)
+
+        #Menu Bar
         self.GuiMenuBar = QtGui.QMenuBar(GuiMainWindow)
         self.GuiMenuBar.setGeometry(QtCore.QRect(0, 0, 1290, 21))
         self.GuiMenuBar.setObjectName(_fromUtf8("GuiMenuBar"))
@@ -79,9 +86,13 @@ class Ui_GuiMainWindow(object):
         self.GuiGarnetMenu = QtGui.QMenu(self.GuiMenuBar)
         self.GuiGarnetMenu.setObjectName(_fromUtf8("GuiGarnetMenu"))
         GuiMainWindow.setMenuBar(self.GuiMenuBar)
+
+        #Status Bar
         self.statusbar = QtGui.QStatusBar(GuiMainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         GuiMainWindow.setStatusBar(self.statusbar)
+
+        #Menu Bar Items
         self.actionGo_To_Cycle = QtGui.QAction(GuiMainWindow)
         self.actionGo_To_Cycle.setObjectName(_fromUtf8("actionGo_To_Cycle"))
         self.GuiGoTo0MenuAction = QtGui.QAction(GuiMainWindow)
@@ -97,7 +108,11 @@ class Ui_GuiMainWindow(object):
         self.GuiFileOpenTraceMenuAction = QtGui.QAction(GuiMainWindow)
         self.GuiFileOpenTraceMenuAction.setObjectName(_fromUtf8("GuiFileOpenTraceMenuAction"))
         self.GuiFileExitMenuAction = QtGui.QAction(GuiMainWindow)
+        self.GuiFileExitMenuAction.setShortcut("Ctrl+Q")
+        #self.GuiFileExitMenuAction.triggered(self.quit_application())
         self.GuiFileExitMenuAction.setObjectName(_fromUtf8("GuiFileExitMenuAction"))
+
+
         self.GuiFileMenu.addAction(self.GuiFileOpenTraceMenuAction)
         self.GuiFileMenu.addAction(self.GuiFileExitMenuAction)
         self.GuiGoToMenu.addAction(self.GuiGoTo0MenuAction)
@@ -109,8 +124,13 @@ class Ui_GuiMainWindow(object):
         self.GuiMenuBar.addAction(self.GuiGoToMenu.menuAction())
         self.GuiMenuBar.addAction(self.GuiGarnetMenu.menuAction())
 
+
+        #self.GuiFileExitMenuAction.triggered.connect(self.quit_application())
+
+
         self.retranslateUi(GuiMainWindow)
         QtCore.QMetaObject.connectSlotsByName(GuiMainWindow)
+
 
     def retranslateUi(self, GuiMainWindow):
         GuiMainWindow.setWindowTitle(_translate("GuiMainWindow", "Loupe", None))
@@ -136,27 +156,19 @@ class Ui_GuiMainWindow(object):
 
     def next_cycle(self):
         print ("next cycle")
-        self.GuiCycleProgressBar.setValue(self.GuiCycleProgressBar.value() + 1)
-        self.GuiCycleCounter.display(self.GuiCycleCounter.value() + 1)
+        cycle_num = self.GuiNetwork.nextCycle()
+        self.GuiCycleProgressBar.setValue(cycle_num/networkAttr.ATTR_NET_TOTCYCLES * 100)
+        self.GuiCycleCounter.display(cycle_num)
 
     def previous_cycle(self):
         print ("previous cycle")
-        if self.GuiCycleProgressBar.value() - 1 < 0:
+        cycle_num = self.GuiNetwork.prevCycle()
+        if cycle_num == None:
             pass
         else:
-            self.GuiCycleProgressBar.setValue(self.GuiCycleProgressBar.value() - 1)
-            self.GuiCycleCounter.display(self.GuiCycleCounter.value() - 1)
+            self.GuiCycleProgressBar.setValue(cycle_num/networkAttr.ATTR_NET_TOTCYCLES * 100)
+            self.GuiCycleCounter.display(cycle_num)
 
-
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    GuiMainWindow = QtGui.QMainWindow()
-    ui = Ui_GuiMainWindow()
-    ui.setupUi(GuiMainWindow)
-    GuiMainWindow.show()
-    sys.exit(app.exec_())
-
-
+    def quit_application(self):
+        print("Closing App...")
+        sys.exit()
