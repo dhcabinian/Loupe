@@ -2,6 +2,8 @@ from PyQt4 import QtGui, QtCore
 from network import Network
 from networkAttr import networkAttr
 from drawAttr import drawAttr
+from CoreExploded import CoreExploded
+from CoreInformation import CoreInfo
 import sys
 
 try:
@@ -36,17 +38,39 @@ class Ui_GuiMainWindow(object):
 
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
-        self.GuiCoreCloseFrame = QtGui.QFrame(self.centralwidget)
-        self.GuiCoreCloseFrame.setMinimumSize(QtCore.QSize(300, 300))
-        self.GuiCoreCloseFrame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.GuiCoreCloseFrame.setFrameShadow(QtGui.QFrame.Raised)
-        self.GuiCoreCloseFrame.setObjectName(_fromUtf8("GuiCoreCloseFrame"))
-        self.verticalLayout.addWidget(self.GuiCoreCloseFrame)
-        self.GuiCoreInfoFrame = QtGui.QFrame(self.centralwidget)
-        self.GuiCoreInfoFrame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.GuiCoreInfoFrame.setFrameShadow(QtGui.QFrame.Raised)
-        self.GuiCoreInfoFrame.setObjectName(_fromUtf8("GuiCoreInfoFrame"))
-        self.verticalLayout.addWidget(self.GuiCoreInfoFrame)
+
+        self.GuiCoreSelectorCombo = QtGui.QComboBox(self.centralwidget)
+        self.GuiCoreSelectorCombo.setObjectName(_fromUtf8("GuiCoreSelectorCombo"))
+        self.GuiCoreSelectorCombo.activated.connect(self.closeViewCore)
+        self.coreSelectorSetup(networkAttr.ATTR_CORE_CORES)
+        self.verticalLayout.addWidget(self.GuiCoreSelectorCombo)
+
+        self.explodedCoreView = CoreExploded(self.centralwidget, self.GuiNetwork.cores[0])
+        self.explodedCoreView.setMinimumSize(QtCore.QSize(drawAttr.DRAW_CORE_SIZE_EXP + 50,
+                                                          drawAttr.DRAW_CORE_SIZE_EXP + 50))
+        self.explodedCoreView.setObjectName(_fromUtf8("explodedCoreView"))
+        self.verticalLayout.addWidget(self.explodedCoreView)
+
+
+        # self.GuiCoreCloseFrame = QtGui.QFrame(self.centralwidget)
+        # self.GuiCoreCloseFrame.setMinimumSize(QtCore.QSize(300, 300))
+        # self.GuiCoreCloseFrame.setObjectName(_fromUtf8("GuiCoreCloseFrame"))
+        # self.verticalLayout.addWidget(self.GuiCoreCloseFrame)
+
+
+        self.GuiCoreInfo = CoreInfo(self.centralwidget, self.GuiNetwork.cores[0])
+        self.GuiCoreInfo.setObjectName(_fromUtf8("GuiCoreInfo"))
+        self.verticalLayout.addWidget(self.GuiCoreInfo)
+
+        # self.GuiCoreInfoFrame = QtGui.QFrame(self.centralwidget)
+        # self.GuiCoreInfoFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        # self.GuiCoreInfoFrame.setFrameShadow(QtGui.QFrame.Raised)
+        # self.GuiCoreInfoFrame.setObjectName(_fromUtf8("GuiCoreInfoFrame"))
+        # self.verticalLayout.addWidget(self.GuiCoreInfoFrame)
+
+
+
+
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
 
@@ -109,7 +133,7 @@ class Ui_GuiMainWindow(object):
         self.GuiFileOpenTraceMenuAction.setObjectName(_fromUtf8("GuiFileOpenTraceMenuAction"))
         self.GuiFileExitMenuAction = QtGui.QAction(GuiMainWindow)
         self.GuiFileExitMenuAction.setShortcut("Ctrl+Q")
-        #self.GuiFileExitMenuAction.triggered(self.quit_application())
+        #self.GuiFileExitMenuAction.triggered.connect(self.quit_application())
         self.GuiFileExitMenuAction.setObjectName(_fromUtf8("GuiFileExitMenuAction"))
 
 
@@ -168,6 +192,26 @@ class Ui_GuiMainWindow(object):
         else:
             self.GuiCycleProgressBar.setValue(cycle_num/networkAttr.ATTR_NET_TOTCYCLES * 100)
             self.GuiCycleCounter.display(cycle_num)
+
+    def coreSelectorSetup(self, core_num):
+        for index in range(core_num):
+            self.GuiCoreSelectorCombo.addItem(_fromUtf8(""))
+            coreSelectText = "Core " + str(index)
+            self.GuiCoreSelectorCombo.setItemText(index, _translate("GuiMainWindow", coreSelectText, None))
+
+    def closeViewCore(self):
+        core_num = self.GuiCoreSelectorCombo.currentIndex()
+        print(core_num)
+        self.explodedCoreView.updateCore(self.GuiNetwork.cores[core_num])
+        #self.explodedCoreView.repaint()
+        self.explodedCoreView.update()
+        self.GuiCoreInfo.updateCoreInfo(self.GuiNetwork.cores[core_num])
+        self.GuiCoreInfo.update()
+
+    def file_open(self):
+        name = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
+        file = open(name, 'r')
+
 
     def quit_application(self):
         print("Closing App...")

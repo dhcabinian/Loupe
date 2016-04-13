@@ -51,3 +51,5 @@ class Core(QtGui.QWidget):
         for buf in self.buffers:
             buf.drawBuffer(painter)
 
+    def getBuffers(self):
+        return self.buffers

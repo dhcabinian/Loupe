@@ -1,6 +1,3 @@
-import sys
-
-# from mainwindow import Window
 from mainwindow import Ui_GuiMainWindow
 from PyQt4 import QtCore, QtGui
 

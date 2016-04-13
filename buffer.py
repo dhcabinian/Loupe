@@ -15,8 +15,10 @@ class Buffer(object):
     WEST_OFFSET = [0, drawAttr.DRAW_CORE_SIZE / 2]
     CORE_OFFSET = [drawAttr.DRAW_CORE_SIZE / 2, drawAttr.DRAW_CORE_SIZE / 2 - 15]
 
-    def __init__(self, core_id, core_topLeftCorner, direction):
+    def __init__(self, core_id, core_topLeftCorner, direction, expanded=0):
         super(Buffer, self).__init__()
+        if expanded == 1:
+            self.setToExpanded()
         # Buffer Information
         self.core_id = core_id
         self.link_dir = direction
@@ -167,3 +169,20 @@ class Buffer(object):
         for index, VC in enumerate(self.rects):
             painter.drawRect(VC)
             painter.drawText(self.buffervCIdsTextPos[index], self.bufferVCIdsText[index])
+
+    def setToExpanded(self):
+            Buffer.NORTH_OFFSET = [drawAttr.DRAW_CORE_SIZE_EXP / 2, 0]
+            Buffer.SOUTH_OFFSET = [drawAttr.DRAW_CORE_SIZE_EXP / 2, drawAttr.DRAW_CORE_SIZE_EXP]
+            Buffer.EAST_OFFSET = [drawAttr.DRAW_CORE_SIZE_EXP, drawAttr.DRAW_CORE_SIZE_EXP / 2]
+            Buffer.WEST_OFFSET = [0, drawAttr.DRAW_CORE_SIZE_EXP / 2]
+            Buffer.CORE_OFFSET = [drawAttr.DRAW_CORE_SIZE_EXP / 2, drawAttr.DRAW_CORE_SIZE_EXP / 2 - 15]
+
+    def __str__(self):
+        string = "Buffer Direction:" + self.link_dir + "\n\r"
+        string += "Flit Information would go here:"
+        return string
+
+    def __repr__(self):
+        string = "Buffer Direction:" + self.link_dir + "\n\r"
+        string += "Flit Information would go here:"
+        return string
