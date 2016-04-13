@@ -16,6 +16,7 @@ class Link(QtGui.QWidget):
         self.topLeftCorner = QtCore.QPointF()
         # Setting up Graphics
         self.setupGrapicsPoints()
+        self.setMinimumSize(self.size.width(), self.size.height())
         # Link Rectangle Object
         self.rect = QtCore.QRectF(self.topLeftCorner, self.size)
 

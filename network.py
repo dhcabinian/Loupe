@@ -6,21 +6,23 @@ from PyQt4 import QtGui
 
 
 class Network(QtGui.QWidget):
-    def __init__(self, topology, num_cores, num_rows, vcs_per_vnet):
+    def __init__(self, parent, topology, num_cores, num_rows, vcs_per_vnet):
         super(Network, self).__init__()
+        self.setParent(parent)
         self.topology = topology
-        # setup network attributes
-        core_size = 150
-        link_length = 50
-        link_width = 10
-        netAttributes = networkAttr(num_rows, num_cores / num_rows, num_cores, vcs_per_vnet)
-        drawAttributes = drawAttr(core_size, link_length, link_width)
+        networkAttr(num_rows, num_cores / num_rows, num_cores, vcs_per_vnet)
+        # Setup QWidget Attributes
+        side = drawAttr.DRAW_CORE_SIZE * networkAttr.ATTR_CORE_CORES\
+               + drawAttr.DRAW_LINK_LENGTH * (networkAttr.ATTR_CORE_CORES - 1)
+        self.setMinimumSize(side, side)
+
         # create cores
         self.cores = []
         self.createCores()
         # create links
         self.links = []
         self.createLinks()
+        self.show()
 
     def createCores(self):
         for core_id in range(networkAttr.ATTR_CORE_CORES):
@@ -51,3 +53,11 @@ class Network(QtGui.QWidget):
         for link in self.links:
             link.drawLink(painter)
 
+    def paintEvent(self, event):
+        qp = QtGui.QPainter()
+
+        qp.begin(self)
+        #qp.setWindow(0, -21, 750, 750)
+        #qp.translate(0, 21)
+        self.drawNetwork(qp)
+        qp.end()

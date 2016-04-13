@@ -1,11 +1,11 @@
 import math
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore
 from networkAttr import networkAttr
 from drawAttr import drawAttr
 
 
 # Buffer Implementation
-class Buffer(QtGui.QWidget):
+class Buffer(object):
     # static variables
     ROW_SEPARATION = 4
     # Offsets give the midpoint of each edge of core rectangle
@@ -32,8 +32,6 @@ class Buffer(QtGui.QWidget):
         self.buffervCIdsTextPos = []
         # Setting up Graphics
         self.setupGrapicsPoints()
-
-        # self.rect = QtCore.QRectF(self.topLeftCorner, self.size)
 
     def setupGrapicsPoints(self):
         if networkAttr.ATTR_CORE_VCS / Buffer.ROW_SEPARATION >= 1:

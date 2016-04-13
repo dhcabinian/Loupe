@@ -15,8 +15,9 @@ class Core(QtGui.QWidget):
         # Row and Column
         self.row = core_id % networkAttr.ATTR_CORE_COLS
         self.col = math.floor(core_id / networkAttr.ATTR_CORE_COLS)
-        # Graphics Size in Pixels
+        # Graphics Options
         self.size = QtCore.QSizeF(drawAttr.DRAW_CORE_SIZE, drawAttr.DRAW_CORE_SIZE)
+        self.setMinimumSize(drawAttr.DRAW_CORE_SIZE, drawAttr.DRAW_CORE_SIZE)
         # Pixel positions
         self.topLeftCorner = QtCore.QPointF(self.row * drawAttr.DRAW_CORE_SIZE + self.row * drawAttr.DRAW_LINK_LENGTH,
                                             self.col * drawAttr.DRAW_CORE_SIZE + self.col * drawAttr.DRAW_LINK_LENGTH)
@@ -25,6 +26,7 @@ class Core(QtGui.QWidget):
         self.textId =str(self.core_id)
         self.textIdPos = QtCore.QPointF()
         self.createBuffers()
+        self.createCoreIdText()
 
     def createCoreIdText(self):
         pos = self.rect.center()
