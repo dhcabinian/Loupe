@@ -24,7 +24,7 @@ class GuiGenerateGarnet(QtGui.QMainWindow):
         self.resize(513, 500)
         self.setMaximumSize(QtCore.QSize(1000, 500))
         self.centralwidget = QtGui.QWidget(self)
-        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        self.centralwidget.setObjectName(_fromUtf8("GuiWindowInternal"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.verticalLayout = QtGui.QVBoxLayout()

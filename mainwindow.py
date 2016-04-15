@@ -30,45 +30,125 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('Loupe_icon.png'))
 
         self.GuiGarnet = None
-
+        # Main Layout
         self.setObjectName(_fromUtf8("GuiMainWindow"))
         self.resize(1260, 960)
-        self.centralwidget = QtGui.QWidget(self)
-        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
-        self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
+        self.GuiWindowInternal = QtGui.QWidget(self)
+        self.GuiWindowInternal.setObjectName(_fromUtf8("GuiWindowInternal"))
+        self.horizontalLayout = QtGui.QHBoxLayout(self.GuiWindowInternal)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        #Network and Progress Layout
+        self.GuiFullNetworkLayout = QtGui.QVBoxLayout()
+        self.GuiFullNetworkLayout.setObjectName(_fromUtf8("GuiFullNetworkLayout"))
+        self.GuiCycleProgressLayout = QtGui.QHBoxLayout()
+        self.GuiCycleProgressLayout.setObjectName(_fromUtf8("GuiCycleProgressLayout"))
 
-        self.GuiNetwork = Network(self.centralwidget, "Mesh", 25, 5, 8, 5000)
+        # LCD Cycle Counter
+        self.GuiCycleCounter = QtGui.QLCDNumber(self.GuiWindowInternal)
+        self.GuiCycleCounter.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.GuiCycleCounter.setObjectName(_fromUtf8("GuiCycleCounter"))
+        self.GuiCycleCounter.raise_()
+        self.GuiCycleProgressLayout.addWidget(self.GuiCycleCounter)
+
+        # Cycle Progress Bar
+        self.GuiCycleProgressBar = QtGui.QProgressBar(self.GuiWindowInternal)
+        self.GuiCycleProgressBar.setProperty("value", 0)
+        self.GuiCycleProgressBar.setObjectName(_fromUtf8("GuiCycleProgressBar"))
+        self.GuiCycleProgressLayout.addWidget(self.GuiCycleProgressBar)
+
+        self.GuiFullNetworkLayout.addLayout(self.GuiCycleProgressLayout)
+        #Network
+        self.GuiNetwork = Network(self.GuiWindowInternal, "Mesh", 16, 4, 8, 5000)
         network_size = self.calc_network_size()
         self.GuiNetwork.setMinimumSize(network_size)
         self.GuiNetwork.setObjectName(_fromUtf8("GuiNetworkFrame"))
-        self.horizontalLayout.addWidget(self.GuiNetwork)
-
+        self.GuiFullNetworkLayout.addWidget(self.GuiNetwork)
+        self.horizontalLayout.addLayout(self.GuiFullNetworkLayout)
+        #Side Bar Layout
         self.GuiSideBarMainLayout = QtGui.QVBoxLayout()
         self.GuiSideBarMainLayout.setObjectName(_fromUtf8("GuiSideBarMainLayout"))
+        #Auto Cycle Label
+        self.GuiAutoCycleLabel = QtGui.QLabel(self.GuiWindowInternal)
+        self.GuiAutoCycleLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.GuiAutoCycleLabel.setObjectName(_fromUtf8("GuiAutoCycleLabel"))
+        self.GuiSideBarMainLayout.addWidget(self.GuiAutoCycleLabel)
+        self.GuiAutoCycleLayout = QtGui.QHBoxLayout()
+        self.GuiAutoCycleLayout.setObjectName(_fromUtf8("GuiAutoCycleLayout"))
+        #Auto Cycle Text Entry
+        self.GuiAutoCycleCycleEntry = QtGui.QLineEdit(self.GuiWindowInternal)
+        self.GuiAutoCycleCycleEntry.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.GuiAutoCycleCycleEntry.setText(_fromUtf8(""))
+        self.GuiAutoCycleCycleEntry.setObjectName(_fromUtf8("GuiAutoCycleCycleEntry"))
+        self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleCycleEntry)
+        #Auto Cycle Start
+        self.GuiAutoCycleStart = QtGui.QPushButton(self.GuiWindowInternal)
+        self.GuiAutoCycleStart.setObjectName(_fromUtf8("GuiAutoCycleStart"))
+        self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStart)
+        self.GuiAutoCycleStop = QtGui.QPushButton(self.GuiWindowInternal)
+        #Auto Cycle Stop
+        self.GuiAutoCycleStop.setObjectName(_fromUtf8("GuiAutoCycleStop"))
+        self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStop)
+
+        self.GuiSideBarMainLayout.addLayout(self.GuiAutoCycleLayout)
+        #Manual Cycle Label
+        self.GuiManualCycleLabel = QtGui.QLabel(self.GuiWindowInternal)
+        self.GuiManualCycleLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.GuiManualCycleLabel.setObjectName(_fromUtf8("GuiManualCycleLabel"))
+        self.GuiSideBarMainLayout.addWidget(self.GuiManualCycleLabel)
+
+        self.GuiManualCycleLayout = QtGui.QHBoxLayout()
+        self.GuiManualCycleLayout.setObjectName(_fromUtf8("GuiManualCycleLayout"))
+        # Manual Cycle Previous PB
+        self.GuiPreviousCyclePb = QtGui.QPushButton(self.GuiWindowInternal)
+        self.GuiPreviousCyclePb.setObjectName(_fromUtf8("GuiPreviousCyclePb"))
+        self.GuiPreviousCyclePb.clicked.connect(self.previous_cycle)
+        self.GuiManualCycleLayout.addWidget(self.GuiPreviousCyclePb)
+        # Manual Cycle Next PB
+        self.GuiNextCyclePb = QtGui.QPushButton(self.GuiWindowInternal)
+        self.GuiNextCyclePb.setObjectName(_fromUtf8("GuiNextCyclePb"))
+        self.GuiNextCyclePb.clicked.connect(self.next_cycle)
+        self.GuiManualCycleLayout.addWidget(self.GuiNextCyclePb)
+
+        self.GuiSideBarMainLayout.addLayout(self.GuiManualCycleLayout)
+        #VN Select Label
+        self.GuiVirtualNetworkSelectLabel = QtGui.QLabel(self.GuiWindowInternal)
+        self.GuiVirtualNetworkSelectLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.GuiVirtualNetworkSelectLabel.setObjectName(_fromUtf8("GuiVirtualNetworkSelectLabel"))
+        self.GuiSideBarMainLayout.addWidget(self.GuiVirtualNetworkSelectLabel)
+
         #Virtual Network Select Box
-        self.GuiVNSelectCombo = QtGui.QComboBox(self.centralwidget)
+        self.GuiVNSelectCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiVNSelectCombo.setObjectName(_fromUtf8("GuiVNSelectCombo"))
         self.GuiVNSelectCombo.addItem(_fromUtf8(""))
         self.GuiVNSelectCombo.addItem(_fromUtf8(""))
         self.GuiSideBarMainLayout.addWidget(self.GuiVNSelectCombo)
+        #Close Up Core LAbel
+        self.GuiCloseUpCoreLabel = QtGui.QLabel(self.GuiWindowInternal)
+        self.GuiCloseUpCoreLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.GuiCloseUpCoreLabel.setObjectName(_fromUtf8("GuiCloseUpCoreLabel"))
+        self.GuiSideBarMainLayout.addWidget(self.GuiCloseUpCoreLabel)
         #Core Selection Box
-        self.GuiCoreSelectorCombo = QtGui.QComboBox(self.centralwidget)
+        self.GuiCoreSelectorCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiCoreSelectorCombo.setObjectName(_fromUtf8("GuiCoreSelectorCombo"))
         self.GuiCoreSelectorCombo.activated.connect(self.close_view_core)
         self.core_selector_setup(networkAttr.CORE_CORES)
         self.GuiSideBarMainLayout.addWidget(self.GuiCoreSelectorCombo)
         #Core Exploded View Box
-        self.GuiCoreExplodedView = CoreExploded(self.centralwidget, self.GuiNetwork.cores[0])
+        self.GuiCoreExplodedView = CoreExploded(self.GuiWindowInternal, self.GuiNetwork.cores[0])
         self.GuiCoreExplodedView.setMinimumSize(QtCore.QSize(drawAttr.CORE_SIZE_EXP + 50, drawAttr.CORE_SIZE_EXP + 50))
         self.GuiCoreExplodedView.setObjectName(_fromUtf8("GuiCoreExplodedView"))
         self.GuiSideBarMainLayout.addWidget(self.GuiCoreExplodedView)
         #Core Information
-        self.GuiCoreInfo = CoreInfo(self.centralwidget, self.GuiNetwork.cores[0])
+        self.GuiCoreInfo = CoreInfo(self.GuiWindowInternal, self.GuiNetwork.cores[0])
         self.GuiCoreInfo.setObjectName(_fromUtf8("GuiCoreInfo"))
         self.GuiSideBarMainLayout.addWidget(self.GuiCoreInfo)
+        # Buffer Label
+        self.GuiBufferLabel = QtGui.QLabel(self.GuiWindowInternal)
+        self.GuiBufferLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.GuiBufferLabel.setObjectName(_fromUtf8("GuiBufferLabel"))
+        self.GuiSideBarMainLayout.addWidget(self.GuiBufferLabel)
         #Buffer Select Combo Box
-        self.GuiBufferSelectCombo = QtGui.QComboBox(self.centralwidget)
+        self.GuiBufferSelectCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiBufferSelectCombo.setObjectName(_fromUtf8("GuiBufferSelectCombo"))
         self.GuiBufferSelectCombo.addItem(_fromUtf8(""))
         self.GuiBufferSelectCombo.addItem(_fromUtf8(""))
@@ -77,7 +157,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiBufferSelectCombo.addItem(_fromUtf8(""))
         self.GuiSideBarMainLayout.addWidget(self.GuiBufferSelectCombo)
         #VC Top Table
-        self.GuiVCTopTable = QtGui.QTableWidget(self.centralwidget)
+        self.GuiVCTopTable = QtGui.QTableWidget(self.GuiWindowInternal)
         self.GuiVCTopTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.GuiVCTopTable.setProperty("showDropIndicator", False)
         self.GuiVCTopTable.setDragDropOverwriteMode(False)
@@ -106,7 +186,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiVCTopTable.setHorizontalHeaderItem(3, item)
         self.GuiSideBarMainLayout.addWidget(self.GuiVCTopTable)
         #VC Bottom Table
-        self.GuiVCBottomTable = QtGui.QTableWidget(self.centralwidget)
+        self.GuiVCBottomTable = QtGui.QTableWidget(self.GuiWindowInternal)
         self.GuiVCBottomTable.setAutoScroll(True)
         self.GuiVCBottomTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.GuiVCBottomTable.setDragDropOverwriteMode(False)
@@ -135,63 +215,9 @@ class GuiMainWindow(QtGui.QMainWindow):
         item = QtGui.QTableWidgetItem()
         self.GuiVCBottomTable.setHorizontalHeaderItem(3, item)
         self.GuiSideBarMainLayout.addWidget(self.GuiVCBottomTable)
-        #Auto Cycle Label
-        self.GUIAutoCycleLabel = QtGui.QLabel(self.centralwidget)
-        self.GUIAutoCycleLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.GUIAutoCycleLabel.setObjectName(_fromUtf8("GUIAutoCycleLabel"))
-        self.GuiSideBarMainLayout.addWidget(self.GUIAutoCycleLabel)
 
-        self.GuiAutoCycleLayout = QtGui.QHBoxLayout()
-        self.GuiAutoCycleLayout.setObjectName(_fromUtf8("GuiAutoCycleLayout"))
-        #Auto Cycle Text Entry
-        self.GuiAutoCycleCycleEntry = QtGui.QLineEdit(self.centralwidget)
-        self.GuiAutoCycleCycleEntry.setMaximumSize(QtCore.QSize(100, 16777215))
-        self.GuiAutoCycleCycleEntry.setText(_fromUtf8(""))
-        self.GuiAutoCycleCycleEntry.setObjectName(_fromUtf8("GuiAutoCycleCycleEntry"))
-        self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleCycleEntry)
-        #Auto Cycle Start
-        self.GuiAutoCycleStart = QtGui.QPushButton(self.centralwidget)
-        self.GuiAutoCycleStart.setObjectName(_fromUtf8("GuiAutoCycleStart"))
-        self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStart)
-        self.GuiAutoCycleStop = QtGui.QPushButton(self.centralwidget)
-        #Auto Cycle Stop
-        self.GuiAutoCycleStop.setObjectName(_fromUtf8("GuiAutoCycleStop"))
-        self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStop)
-
-        self.GuiSideBarMainLayout.addLayout(self.GuiAutoCycleLayout)
-        #Manual Cycle Label
-        self.GuiManualCycleLabel = QtGui.QLabel(self.centralwidget)
-        self.GuiManualCycleLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.GuiManualCycleLabel.setObjectName(_fromUtf8("GuiManualCycleLabel"))
-        self.GuiSideBarMainLayout.addWidget(self.GuiManualCycleLabel)
-
-        self.GuiManualCycleLayout = QtGui.QHBoxLayout()
-        self.GuiManualCycleLayout.setObjectName(_fromUtf8("GuiManualCycleLayout"))
-        # Manual Cycle Previous PB
-        self.GuiPreviousCyclePb = QtGui.QPushButton(self.centralwidget)
-        self.GuiPreviousCyclePb.setObjectName(_fromUtf8("GuiPreviousCyclePb"))
-        self.GuiPreviousCyclePb.clicked.connect(self.previous_cycle)
-        self.GuiManualCycleLayout.addWidget(self.GuiPreviousCyclePb)
-        # Manual Cycle Next PB
-        self.GuiNextCyclePb = QtGui.QPushButton(self.centralwidget)
-        self.GuiNextCyclePb.setObjectName(_fromUtf8("GuiNextCyclePb"))
-        self.GuiNextCyclePb.clicked.connect(self.next_cycle)
-        self.GuiManualCycleLayout.addWidget(self.GuiNextCyclePb)
-
-        # LCD Cycle Counter
-        self.GuiSideBarMainLayout.addLayout(self.GuiManualCycleLayout)
-        self.GuiCycleCounter = QtGui.QLCDNumber(self.centralwidget)
-        self.GuiCycleCounter.setMaximumSize(QtCore.QSize(16777215, 30))
-        self.GuiCycleCounter.setObjectName(_fromUtf8("GuiCycleCounter"))
-        self.GuiSideBarMainLayout.addWidget(self.GuiCycleCounter)
-
-        # Cycle Progress Bar
-        self.GuiCycleProgressBar = QtGui.QProgressBar(self.centralwidget)
-        self.GuiCycleProgressBar.setProperty("value", 0)
-        self.GuiCycleProgressBar.setObjectName(_fromUtf8("GuiCycleProgressBar"))
-        self.GuiSideBarMainLayout.addWidget(self.GuiCycleProgressBar)
         self.horizontalLayout.addLayout(self.GuiSideBarMainLayout)
-        self.setCentralWidget(self.centralwidget)
+        self.setCentralWidget(self.GuiWindowInternal)
 
         # Menu Bar
         self.GuiMenuBar = QtGui.QMenuBar(self)
@@ -254,6 +280,9 @@ class GuiMainWindow(QtGui.QMainWindow):
 
     def retranslateUi(self):
         self.setWindowTitle(_translate("self", "Loupe", None))
+        self.GuiVirtualNetworkSelectLabel.setText(_translate("GuiMainWindow", "Virtual Network Select", None))
+        self.GuiCloseUpCoreLabel.setText(_translate("GuiMainWindow", "Close-Up Core View", None))
+        self.GuiBufferLabel.setText(_translate("GuiMainWindow", "Buffer Information", None))
         self.GuiVNSelectCombo.setItemText(0, _translate("GuiMainWindow", "Virtual Network 0", None))
         self.GuiVNSelectCombo.setItemText(1, _translate("GuiMainWindow", "Virtual Network 1", None))
         self.GuiCoreSelectorCombo.setItemText(0, _translate("GuiMainWindow", "Core 0", None))
@@ -299,7 +328,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         item.setText(_translate("GuiMainWindow", "VC 6", None))
         item = self.GuiVCBottomTable.horizontalHeaderItem(3)
         item.setText(_translate("GuiMainWindow", "VC 7", None))
-        self.GUIAutoCycleLabel.setText(_translate("GuiMainWindow", "Animation/Auto Cycle", None))
+        self.GuiAutoCycleLabel.setText(_translate("GuiMainWindow", "Animation/Auto Cycle", None))
         self.GuiAutoCycleStart.setText(_translate("GuiMainWindow", "Start", None))
         self.GuiAutoCycleStop.setText(_translate("GuiMainWindow", "Stop", None))
         self.GuiManualCycleLabel.setText(_translate("GuiMainWindow", "Manual Cycle", None))
