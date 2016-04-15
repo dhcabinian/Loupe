@@ -1,5 +1,4 @@
 from PyQt4 import QtCore, QtGui
-import sys
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -9,15 +8,18 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-class UI_generate_Garnet(QtGui.QMainWindow):
+
+class GuiGenerateGarnet(QtGui.QMainWindow):
     def __init__(self):
-        super(UI_generate_Garnet, self).__init__()
+        super(GuiGenerateGarnet, self).__init__()
         self.setObjectName(_fromUtf8("self"))
         self.resize(513, 500)
         self.setMaximumSize(QtCore.QSize(1000, 500))
@@ -96,9 +98,8 @@ class UI_generate_Garnet(QtGui.QMainWindow):
 
         self.pb_createRunCommand = QtGui.QPushButton(self.centralwidget)
         self.pb_createRunCommand.setObjectName(_fromUtf8("pb_createRunCommand"))
-        self.pb_createRunCommand.clicked.connect(self.showGarnetCmd)
+        self.pb_createRunCommand.clicked.connect(self.show_garnet_cmd)
         self.verticalLayout.addWidget(self.pb_createRunCommand)
-
 
         self.horizontalLayout.addLayout(self.verticalLayout)
         self.setCentralWidget(self.centralwidget)
@@ -126,51 +127,39 @@ class UI_generate_Garnet(QtGui.QMainWindow):
         self.combo_algorithm.setItemText(2, _translate("self", "Escape VC Routing", None))
         self.pb_createRunCommand.setText(_translate("self", "Create Run Command", None))
 
+    def show_garnet_cmd(self):
+        garnet_dialog = QtGui.QMessageBox()
+        run_cmd = self.generate_run_cmd()
+        garnet_dialog.setWindowTitle("Generated Garnet Command")
+        garnet_dialog.setText("Here is the generated Garnet Command:")
+        garnet_dialog.setDetailedText(run_cmd)
+        garnet_dialog.exec_()
 
-    def showGarnetCmd(self):
-        garnetDialog = QtGui.QMessageBox()
-        runCmd = self.generateRunCmd()
-        garnetDialog.setWindowTitle("Generated Garnet Command")
-        garnetDialog.setText("Here is the generated Garnet Command:")
-        garnetDialog.setDetailedText(runCmd)
-        garnetDialog.exec_()
-
-    def generateRunCmd(self):
-        runCommand = "./build/ALPHA_Network_test/gem5.debug configs/example/ruby_network_test.py \\"
-        runCommand += " --network=garnet2.0 \\"
-        runCommand += " --num-cpus=" + str(self.sld_numcpus.value()) + " \\"
-        runCommand += " --num-dirs=" + str(self.sld_numcpus.value()) + " \\"
-        runCommand += " --topology=" + str(self.combo_topology.currentText()) + " \\"
-        runCommand += " --num-rows=" + str(self.sld_numrows.value()) + " \\"
-        runCommand += " --sim-cycles=" + str(self.sld_simcycles.value()) + " \\"
-        runCommand += " --injectionrate=" + str(self.sld_injectionrate.value()/100) + " \\"
-        if (self.combo_traffic.currentText() == "Uniform Random Traffic"):
-            runCommand += " --synthetic=" + str(0) + " \\"
-        elif (self.combo_traffic.currentText() == "Tornado Traffic"):
-            runCommand += " --synthetic=" + str(1) + " \\"
-        elif (self.combo_traffic.currentText() == "Bit Complement Traffic"):
-            runCommand += " --synthetic=" + str(2) + " \\"
+    def generate_run_cmd(self):
+        run_command = "./build/ALPHA_Network_test/gem5.debug configs/example/ruby_network_test.py \\"
+        run_command += " --network=garnet2.0 \\"
+        run_command += " --num-cpus=" + str(self.sld_numcpus.value()) + " \\"
+        run_command += " --num-dirs=" + str(self.sld_numcpus.value()) + " \\"
+        run_command += " --topology=" + str(self.combo_topology.currentText()) + " \\"
+        run_command += " --num-rows=" + str(self.sld_numrows.value()) + " \\"
+        run_command += " --sim-cycles=" + str(self.sld_simcycles.value()) + " \\"
+        run_command += " --injectionrate=" + str(self.sld_injectionrate.value() / 100) + " \\"
+        if self.combo_traffic.currentText() == "Uniform Random Traffic":
+            run_command += " --synthetic=" + str(0) + " \\"
+        elif self.combo_traffic.currentText() == "Tornado Traffic":
+            run_command += " --synthetic=" + str(1) + " \\"
+        elif self.combo_traffic.currentText() == "Bit Complement Traffic":
+            run_command += " --synthetic=" + str(2) + " \\"
         else:
             print("Invalid traffic type")
-        runCommand += " --vcs-per-vnet=" + str(self.sld_vcspervnet.value()) + " \\"
-        if (self.combo_algorithm.currentText() == "XY Routing"):
-            runCommand += " --routing-algorithm=" + str(0) + " \\"
-        elif (self.combo_algorithm.currentText() == "George Routing"):
-            runCommand += " --routing-algorithm=" + str(1) + " \\"
-        elif (self.combo_algorithm.currentText() == "Escape VC Routing"):
-            runCommand += " --routing-algorithm=" + str(2) + " \\"
+        run_command += " --vcs-per-vnet=" + str(self.sld_vcspervnet.value()) + " \\"
+        if self.combo_algorithm.currentText() == "XY Routing":
+            run_command += " --routing-algorithm=" + str(0) + " \\"
+        elif self.combo_algorithm.currentText() == "George Routing":
+            run_command += " --routing-algorithm=" + str(1) + " \\"
+        elif self.combo_algorithm.currentText() == "Escape VC Routing":
+            run_command += " --routing-algorithm=" + str(2) + " \\"
         else:
             print("Invalid algorithm")
-        print(runCommand)
-        return runCommand
-
-
-# if __name__ == "__main__":
-#
-#     app = QtGui.QApplication(sys.argv)
-#     self = QtGui.QMainWindow()
-#     ui = Ui_self()
-#     ui.setupUi(self)
-#     self.show()
-#     sys.exit(app.exec_())
-
+        print(run_command)
+        return run_command

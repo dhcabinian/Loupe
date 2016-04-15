@@ -1,38 +1,39 @@
 from PyQt4 import QtGui, QtCore
 
+
 class CoreInfo(QtGui.QWidget):
-    def __init__(self, parent, CoreIn):
+    def __init__(self, parent_widget, core_in):
         super(CoreInfo, self).__init__()
-        self.setParent(parent)
+        self.setParent(parent_widget)
         # Core Information
         self.core_id = None
         self.buffers = []
-        self.textInfo = []
-        self.textInfoPos = []
-        self.createTextInfoPositions()
-        self.updateCoreInfo(CoreIn)
+        self.text_info = []
+        self.text_info_pos = []
+        self.create_text_info_positions()
+        self.update_core_info(core_in)
 
-    def updateCoreInfo(self, CoreIn):
-        self.buffers = CoreIn.getBuffers()
-        self.core_id = CoreIn.core_id
-        self.updateText(CoreIn)
+    def update_core_info(self, core_in):
+        self.buffers = core_in.get_buffers()
+        self.core_id = core_in.core_id
+        self.update_text()
 
-    def updateText(self, CoreIn):
-        self.textInfo = []
+    def update_text(self):
+        self.text_info = []
         for buf in self.buffers:
-            self.textInfo.append(str(buf))
+            self.text_info.append(str(buf))
 
-    def createTextInfoPositions(self):
-        #Position for each buffer
-        for ypos in range(100,200,20):
-            self.textInfoPos.append(QtCore.QPointF(0,ypos))
+    def create_text_info_positions(self):
+        # Position for each buffer
+        for ypos in range(10, 110, 20):
+            self.text_info_pos.append(QtCore.QPointF(0, ypos))
 
     def paintEvent(self, event):
         painter = QtGui.QPainter()
         painter.begin(self)
-        self.drawCoreInfo(painter)
+        self.draw_core_info(painter)
         painter.end()
 
-    def drawCoreInfo(self, painter):
-        for index, text in enumerate(self.textInfo):
-            painter.drawText(self.textInfoPos[index], self.textInfo[index])
+    def draw_core_info(self, painter):
+        for index, text in enumerate(self.text_info):
+            painter.drawText(self.text_info_pos[index], self.text_info[index])

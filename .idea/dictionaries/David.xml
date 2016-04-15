@@ -2,9 +2,22 @@
   <dictionary name="David">
     <words>
       <w>bufferv</w>
+      <w>centralwidget</w>
+      <w>cpus</w>
+      <w>disambig</w>
       <w>grapics</w>
+      <w>injectionrate</w>
+      <w>loupe</w>
+      <w>menubar</w>
+      <w>numcpus</w>
+      <w>numrows</w>
       <w>outport</w>
       <w>rects</w>
+      <w>retranslate</w>
+      <w>simcycles</w>
+      <w>statusbar</w>
+      <w>totcycles</w>
+      <w>vcspervnet</w>
       <w>vnet</w>
       <w>xpos</w>
       <w>ypos</w>

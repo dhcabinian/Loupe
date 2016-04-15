@@ -7,49 +7,52 @@ from drawAttr import drawAttr
 
 # Core Implementation
 class Core(QtGui.QWidget):
-    def __init__(self, core_id, vcs_per_vnet, num_cols):
+    def __init__(self, core_id):
         super(Core, self).__init__()
         # Core Information
         self.core_id = core_id
         self.buffers = []
-        # Row and Column
-        self.row = core_id % networkAttr.ATTR_CORE_COLS
-        self.col = math.floor(core_id / networkAttr.ATTR_CORE_COLS)
+        self.row = core_id % networkAttr.CORE_COLS
+        self.col = math.floor(core_id / networkAttr.CORE_COLS)
         # Graphics Options
-        self.size = QtCore.QSizeF(drawAttr.DRAW_CORE_SIZE, drawAttr.DRAW_CORE_SIZE)
-        self.setMinimumSize(drawAttr.DRAW_CORE_SIZE, drawAttr.DRAW_CORE_SIZE)
+        self.size = QtCore.QSizeF(drawAttr.CORE_SIZE, drawAttr.CORE_SIZE)
+        self.setMinimumSize(drawAttr.CORE_SIZE, drawAttr.CORE_SIZE)
         # Pixel positions
-        self.topLeftCorner = QtCore.QPointF(self.row * drawAttr.DRAW_CORE_SIZE + self.row * drawAttr.DRAW_LINK_LENGTH,
-                                            self.col * drawAttr.DRAW_CORE_SIZE + self.col * drawAttr.DRAW_LINK_LENGTH)
+        self.top_left_corner = QtCore.QPointF(self.row * drawAttr.CORE_SIZE + self.row * drawAttr.LINK_LENGTH,
+                                              self.col * drawAttr.CORE_SIZE + self.col * drawAttr.LINK_LENGTH)
         # Core Rectangle Object
-        self.rect = QtCore.QRectF(self.topLeftCorner, self.size)
-        self.textId =str(self.core_id)
-        self.textIdPos = QtCore.QPointF()
-        self.createBuffers()
-        self.createCoreIdText()
+        self.rect = QtCore.QRectF(self.top_left_corner, self.size)
+        self.text_id = str(self.core_id)
+        self.text_id_pos = QtCore.QPointF()
+        self.create_buffers()
+        self.create_core_id_text()
 
-    def createCoreIdText(self):
+    def create_core_id_text(self):
         pos = self.rect.center()
         pos.setY(pos.y() + 15)
-        self.textIdPos = pos
+        self.text_id_pos = pos
 
-    def createBuffers(self):
+    def create_buffers(self):
         # Create Buffers
-        if self.col + 1 < networkAttr.ATTR_CORE_COLS:
-            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "SOUTH"))
+        if self.col + 1 < networkAttr.CORE_COLS:
+            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "SOUTH"))
         if self.col - 1 >= 0:
-            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "NORTH"))
-        if self.row + 1 < networkAttr.ATTR_CORE_ROWS:
-            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "EAST"))
+            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "NORTH"))
+        if self.row + 1 < networkAttr.CORE_ROWS:
+            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "EAST"))
         if self.row - 1 >= 0:
-            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "WEST"))
-        self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "CORE"))
+            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "WEST"))
+        self.buffers.append(Buffer(self.core_id, self.top_left_corner, "CORE"))
 
-    def drawCore(self, painter):
+    def draw_core(self, painter):
         painter.drawRect(self.rect)
-        painter.drawText(self.textIdPos, self.textId)
+        painter.drawText(self.text_id_pos, self.text_id)
         for buf in self.buffers:
-            buf.drawBuffer(painter)
+            buf.draw_buffer(painter)
 
-    def getBuffers(self):
+    def get_buffers(self):
         return self.buffers
+
+    def update_core(self):
+        for buf in self.buffers:
+            buf.update_buffer()

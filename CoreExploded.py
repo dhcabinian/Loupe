@@ -5,10 +5,9 @@ from buffer import Buffer
 
 
 class CoreExploded(QtGui.QWidget):
-
-    def __init__(self, parent, CoreIn):
+    def __init__(self, parent_widget, core_in):
         super(CoreExploded, self).__init__()
-        self.setParent(parent)
+        self.setParent(parent_widget)
         # Core Information
         self.core_id = None
         self.buffers = []
@@ -16,46 +15,46 @@ class CoreExploded(QtGui.QWidget):
         self.row = None
         self.col = None
         # Graphics Options
-        self.size = QtCore.QSizeF(drawAttr.DRAW_CORE_SIZE_EXP, drawAttr.DRAW_CORE_SIZE_EXP)
-        self.setMinimumSize(drawAttr.DRAW_CORE_SIZE_EXP, drawAttr.DRAW_CORE_SIZE_EXP)
+        self.size = QtCore.QSizeF(drawAttr.CORE_SIZE_EXP, drawAttr.CORE_SIZE_EXP)
+        self.setMinimumSize(drawAttr.CORE_SIZE_EXP, drawAttr.CORE_SIZE_EXP)
         # Pixel positions
         self.topLeftCorner = QtCore.QPointF(20, 20)
         # Core Rectangle Object
         self.rect = QtCore.QRectF(self.topLeftCorner, self.size)
-        self.textId = None
-        self.textIdPos = QtCore.QPointF()
-        self.updateCore(CoreIn)
+        self.text_id = None
+        self.text_id_pos = QtCore.QPointF()
+        self.update_core(core_in)
 
-    def updateCore(self, CoreIn):
-                # Core Information
-        self.core_id = CoreIn.core_id
+    def update_core(self, core_in):
+        # Core Information
+        self.core_id = core_in.core_id
         self.buffers = []
         # Row and Column
-        self.row = CoreIn.row
-        self.col = CoreIn.col
+        self.row = core_in.row
+        self.col = core_in.col
         # Graphics Options
-        self.textId = str(self.core_id)
-        self.createBuffers()
-        self.createCoreIdText()
+        self.text_id = str(self.core_id)
+        self.create_buffers()
+        self.create_core_id_text()
 
-    def drawCore(self, painter):
+    def draw_core(self, painter):
         painter.drawRect(self.rect)
-        painter.drawText(self.textIdPos, self.textId)
+        painter.drawText(self.text_id_pos, self.text_id)
         for buf in self.buffers:
-            buf.drawBuffer(painter)
+            buf.draw_buffer(painter)
 
-    def createCoreIdText(self):
+    def create_core_id_text(self):
         pos = self.rect.center()
         pos.setY(pos.y() + 15)
-        self.textIdPos = pos
+        self.text_id_pos = pos
 
-    def createBuffers(self):
+    def create_buffers(self):
         # Create Buffers
-        if self.col + 1 < networkAttr.ATTR_CORE_COLS:
+        if self.col + 1 < networkAttr.CORE_COLS:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "SOUTH", 1))
         if self.col - 1 >= 0:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "NORTH", 1))
-        if self.row + 1 < networkAttr.ATTR_CORE_ROWS:
+        if self.row + 1 < networkAttr.CORE_ROWS:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "EAST", 1))
         if self.row - 1 >= 0:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "WEST", 1))
@@ -64,7 +63,8 @@ class CoreExploded(QtGui.QWidget):
     def paintEvent(self, event):
         painter = QtGui.QPainter()
         painter.begin(self)
-        #qp.setWindow(0, -21, 750, 750)
-        #qp.translate(0, 21)
-        self.drawCore(painter)
+        self.draw_core(painter)
         painter.end()
+
+    def update_core_exploded(self):
+        pass

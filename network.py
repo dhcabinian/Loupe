@@ -8,81 +8,88 @@ from PyQt4 import QtGui
 class Network(QtGui.QWidget):
     CYCLE_NUMBER = 0
 
-    def __init__(self, parent, topology, num_cores, num_rows, vcs_per_vnet, net_cycle):
+    def __init__(self, parent_widget, topology, num_cores, num_rows, vcs_per_vnet, net_total_cycle):
         super(Network, self).__init__()
-        self.setParent(parent)
+        self.setParent(parent_widget)
         self.topology = topology
-        networkAttr(num_rows, num_cores / num_rows, num_cores, vcs_per_vnet, net_cycle)
+        networkAttr(num_rows, num_cores / num_rows, num_cores, vcs_per_vnet, net_total_cycle)
         # Setup QWidget Attributes
-        side = drawAttr.DRAW_CORE_SIZE * networkAttr.ATTR_CORE_CORES\
-               + drawAttr.DRAW_LINK_LENGTH * (networkAttr.ATTR_CORE_CORES - 1)
+        side = drawAttr.CORE_SIZE * networkAttr.CORE_CORES \
+               + drawAttr.LINK_LENGTH * (networkAttr.CORE_CORES - 1)
         self.setMinimumSize(side, side)
 
         # create cores
         self.cores = []
-        self.createCores()
+        self.create_cores()
         # create links
         self.links = []
-        self.createLinks()
+        self.create_links()
         self.show()
 
-    def createCores(self):
-        for core_id in range(networkAttr.ATTR_CORE_CORES):
-            self.cores.append(Core(core_id, networkAttr.ATTR_CORE_VCS, networkAttr.ATTR_CORE_COLS))
+    def create_cores(self):
+        for core_id in range(networkAttr.CORE_CORES):
+            self.cores.append(Core(core_id))
 
-    def createLinks(self):
+    def create_links(self):
         # Create Links
-        for row in range(networkAttr.ATTR_CORE_ROWS):
-            for col in range(networkAttr.ATTR_CORE_COLS):
-                if col + 1 < networkAttr.ATTR_CORE_COLS:
-                    coreId = row * networkAttr.ATTR_CORE_COLS + col
-                    self.links.append(Link(self.cores[coreId], self.cores[coreId + 1]))
+        for row in range(networkAttr.CORE_ROWS):
+            for col in range(networkAttr.CORE_COLS):
+                if col + 1 < networkAttr.CORE_COLS:
+                    core_id = row * networkAttr.CORE_COLS + col
+                    self.links.append(Link(self.cores[core_id], self.cores[core_id + 1]))
                 if col - 1 >= 0:
-                    coreId = row * networkAttr.ATTR_CORE_COLS + col
-                    self.links.append(Link(self.cores[coreId], self.cores[coreId - 1]))
-        for col in range(networkAttr.ATTR_CORE_COLS):
-            for row in range(networkAttr.ATTR_CORE_ROWS):
-                if row + 1 < networkAttr.ATTR_CORE_ROWS:
-                    coreId = row * networkAttr.ATTR_CORE_COLS + col
-                    self.links.append(Link(self.cores[coreId], self.cores[coreId + networkAttr.ATTR_CORE_COLS]))
+                    core_id = row * networkAttr.CORE_COLS + col
+                    self.links.append(Link(self.cores[core_id], self.cores[core_id - 1]))
+        for col in range(networkAttr.CORE_COLS):
+            for row in range(networkAttr.CORE_ROWS):
+                if row + 1 < networkAttr.CORE_ROWS:
+                    core_id = row * networkAttr.CORE_COLS + col
+                    self.links.append(Link(self.cores[core_id], self.cores[core_id + networkAttr.CORE_COLS]))
                 if row - 1 >= 0:
-                    coreId = row * networkAttr.ATTR_CORE_COLS + col
-                    self.links.append(Link(self.cores[coreId], self.cores[coreId - networkAttr.ATTR_CORE_COLS]))
+                    core_id = row * networkAttr.CORE_COLS + col
+                    self.links.append(Link(self.cores[core_id], self.cores[core_id - networkAttr.CORE_COLS]))
 
-    def drawNetwork(self, painter):
+    def draw_network(self, painter):
         for core in self.cores:
-            core.drawCore(painter)
+            core.draw_core(painter)
         for link in self.links:
-            link.drawLink(painter)
+            link.draw_link(painter)
 
     def paintEvent(self, event):
         qp = QtGui.QPainter()
 
         qp.begin(self)
-        #qp.setWindow(0, -21, 750, 750)
-        #qp.translate(0, 21)
-        self.drawNetwork(qp)
+        # qp.setWindow(0, -21, 750, 750)
+        # qp.translate(0, 21)
+        self.draw_network(qp)
         qp.end()
 
-    def nextCycle(self):
-        if Network.CYCLE_NUMBER == networkAttr.ATTR_NET_TOTCYCLES:
+    def next_cycle(self):
+        if Network.CYCLE_NUMBER == networkAttr.NET_TOTCYCLES:
             return None
         else:
             Network.CYCLE_NUMBER += 1
         return Network.CYCLE_NUMBER
 
-    def prevCycle(self):
+    def prev_cycle(self):
         if Network.CYCLE_NUMBER == 0:
             return None
         else:
             Network.CYCLE_NUMBER -= 1
         return Network.CYCLE_NUMBER
 
-    def goToCycle(self, cycleNum):
-        if cycleNum < 0:
+    def go_to_cycle(self, cycle_num):
+        if cycle_num < 0:
             return None
-        elif cycleNum > networkAttr.ATTR_NET_TOTCYCLES:
+        elif cycle_num > networkAttr.NET_TOTCYCLES:
             return None
         else:
-            Network.CYCLE_NUMBER = int(cycleNum)
+            Network.CYCLE_NUMBER = int(cycle_num)
         return Network.CYCLE_NUMBER
+
+    def update_network(self):
+        for core in self.cores:
+            core.update_core()
+        for link in self.links:
+            link.update_link()
+        self.update()
