@@ -14,6 +14,8 @@ class Buffer(object):
     E_OFFSET = [drawAttr.CORE_SIZE, drawAttr.CORE_SIZE / 2]
     W_OFFSET = [0, drawAttr.CORE_SIZE / 2]
     C_OFFSET = [drawAttr.CORE_SIZE / 2, drawAttr.CORE_SIZE / 2 - 15]
+    VC_ID_X_OFFSET = 3
+    VC_ID_Y_OFFSET = 5
 
     def __init__(self, core_id, core_top_left_corner, direction, expanded=0):
         super(Buffer, self).__init__()
@@ -156,8 +158,8 @@ class Buffer(object):
         for vc_id, rect in enumerate(self.rects):
             self.buffer_vc_Ids_text.append(str(vc_id))
             pos = rect.center()
-            pos.setY(pos.y() + 5)
-            pos.setX(pos.x() - 3)
+            pos.setX(pos.x() - Buffer.VC_ID_X_OFFSET)
+            pos.setY(pos.y() + Buffer.VC_ID_Y_OFFSET)
             self.buffer_vc_ids_text_pos.append(pos)
 
     def draw_buffer(self, painter):

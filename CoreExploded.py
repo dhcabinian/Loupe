@@ -5,6 +5,10 @@ from buffer import Buffer
 
 
 class CoreExploded(QtGui.QWidget):
+    CORE_EXP_X_OFFSET = 20
+    CORE_EXP_Y_OFFSET = 20
+    CORE_ID_Y_OFFSET = 15
+
     def __init__(self, parent_widget, core_in):
         super(CoreExploded, self).__init__()
         self.setParent(parent_widget)
@@ -18,7 +22,7 @@ class CoreExploded(QtGui.QWidget):
         self.size = QtCore.QSizeF(drawAttr.CORE_SIZE_EXP, drawAttr.CORE_SIZE_EXP)
         self.setMinimumSize(drawAttr.CORE_SIZE_EXP, drawAttr.CORE_SIZE_EXP)
         # Pixel positions
-        self.topLeftCorner = QtCore.QPointF(20, 20)
+        self.topLeftCorner = QtCore.QPointF(CoreExploded.CORE_EXP_X_OFFSET, CoreExploded.CORE_EXP_Y_OFFSET)
         # Core Rectangle Object
         self.rect = QtCore.QRectF(self.topLeftCorner, self.size)
         self.text_id = None
@@ -45,7 +49,7 @@ class CoreExploded(QtGui.QWidget):
 
     def create_core_id_text(self):
         pos = self.rect.center()
-        pos.setY(pos.y() + 15)
+        pos.setY(pos.y() + CoreExploded.CORE_ID_Y_OFFSET)
         self.text_id_pos = pos
 
     def create_buffers(self):
