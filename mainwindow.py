@@ -11,11 +11,28 @@ import sys
 class GuiMainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(GuiMainWindow, self).__init__()
-        self.setWindowIcon(QtGui.QIcon('Loupe_icon.png'))
+        self.setup()
 
+    def setup(self):
         self.GuiGarnet = None
+        self.setup_main_window()
+        self.setup_cycle()
+        self.setup_network()
+        self.setup_auto()
+        self.setup_manual()
+        self.setup_vn()
+        self.setup_close_core()
+        self.setup_buffer()
+        self.setup_buffer_tables()
+        self.setup_menu_bar()
+        self.setup_status_bar()
+        QtCore.QMetaObject.connectSlotsByName(self)
+
+    def setup_main_window(self):
         # Main Layout
         self.setObjectName("GuiMainWindow")
+        self.setWindowTitle("Loupe")
+        self.setWindowIcon(QtGui.QIcon('Loupe_icon.png'))
         self.resize(1260, 960)
         self.GuiWindowInternal = QtGui.QWidget(self)
         self.GuiWindowInternal.setObjectName("GuiWindowInternal")
@@ -27,6 +44,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiCycleProgressLayout = QtGui.QHBoxLayout()
         self.GuiCycleProgressLayout.setObjectName("GuiCycleProgressLayout")
 
+    def setup_cycle(self):
         # LCD Cycle Counter
         self.GuiCycleCounter = QtGui.QLCDNumber(self.GuiWindowInternal)
         self.GuiCycleCounter.setMaximumSize(QtCore.QSize(16777215, 30))
@@ -41,6 +59,8 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiCycleProgressLayout.addWidget(self.GuiCycleProgressBar)
 
         self.GuiFullNetworkLayout.addLayout(self.GuiCycleProgressLayout)
+
+    def setup_network(self):
         #Network
         self.GuiNetwork = Network(self.GuiWindowInternal, "Mesh", 16, 4, 8, 5000)
         network_size = self.calc_network_size()
@@ -48,14 +68,19 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiNetwork.setObjectName("GuiNetworkFrame")
         self.GuiFullNetworkLayout.addWidget(self.GuiNetwork)
         self.horizontalLayout.addLayout(self.GuiFullNetworkLayout)
+
+
         #Side Bar Layout
         self.GuiSideBarMainLayout = QtGui.QVBoxLayout()
         self.GuiSideBarMainLayout.setObjectName("GuiSideBarMainLayout")
+
+    def setup_auto(self):
         #Auto Cycle Label
         self.GuiAutoCycleLabel = QtGui.QLabel(self.GuiWindowInternal)
         self.GuiAutoCycleLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.GuiAutoCycleLabel.setObjectName("GuiAutoCycleLabel")
         self.GuiSideBarMainLayout.addWidget(self.GuiAutoCycleLabel)
+        self.GuiAutoCycleLabel.setText("Animation/Auto Cycle")
         self.GuiAutoCycleLayout = QtGui.QHBoxLayout()
         self.GuiAutoCycleLayout.setObjectName("GuiAutoCycleLayout")
         #Auto Cycle Text Entry
@@ -68,17 +93,22 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiAutoCycleStart = QtGui.QPushButton(self.GuiWindowInternal)
         self.GuiAutoCycleStart.setObjectName("GuiAutoCycleStart")
         self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStart)
-        self.GuiAutoCycleStop = QtGui.QPushButton(self.GuiWindowInternal)
+        self.GuiAutoCycleStart.setText("Start")
         #Auto Cycle Stop
+        self.GuiAutoCycleStop = QtGui.QPushButton(self.GuiWindowInternal)
         self.GuiAutoCycleStop.setObjectName("GuiAutoCycleStop")
         self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStop)
+        self.GuiAutoCycleStop.setText("Stop")
 
         self.GuiSideBarMainLayout.addLayout(self.GuiAutoCycleLayout)
+
+    def setup_manual(self):
         #Manual Cycle Label
         self.GuiManualCycleLabel = QtGui.QLabel(self.GuiWindowInternal)
         self.GuiManualCycleLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.GuiManualCycleLabel.setObjectName("GuiManualCycleLabel")
         self.GuiSideBarMainLayout.addWidget(self.GuiManualCycleLabel)
+        self.GuiManualCycleLabel.setText("Manual Cycle")
 
         self.GuiManualCycleLayout = QtGui.QHBoxLayout()
         self.GuiManualCycleLayout.setObjectName("GuiManualCycleLayout")
@@ -87,18 +117,23 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiPreviousCyclePb.setObjectName("GuiPreviousCyclePb")
         self.GuiPreviousCyclePb.clicked.connect(self.previous_cycle)
         self.GuiManualCycleLayout.addWidget(self.GuiPreviousCyclePb)
+        self.GuiPreviousCyclePb.setText("Previous Cycle")
         # Manual Cycle Next PB
         self.GuiNextCyclePb = QtGui.QPushButton(self.GuiWindowInternal)
         self.GuiNextCyclePb.setObjectName("GuiNextCyclePb")
         self.GuiNextCyclePb.clicked.connect(self.next_cycle)
         self.GuiManualCycleLayout.addWidget(self.GuiNextCyclePb)
+        self.GuiNextCyclePb.setText("Next Cycle")
 
         self.GuiSideBarMainLayout.addLayout(self.GuiManualCycleLayout)
+
+    def setup_vn(self):
         #VN Select Label
         self.GuiVirtualNetworkSelectLabel = QtGui.QLabel(self.GuiWindowInternal)
         self.GuiVirtualNetworkSelectLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.GuiVirtualNetworkSelectLabel.setObjectName("GuiVirtualNetworkSelectLabel")
         self.GuiSideBarMainLayout.addWidget(self.GuiVirtualNetworkSelectLabel)
+        self.GuiVirtualNetworkSelectLabel.setText("Virtual Network Select")
 
         #Virtual Network Select Box
         self.GuiVNSelectCombo = QtGui.QComboBox(self.GuiWindowInternal)
@@ -106,17 +141,24 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiVNSelectCombo.addItem("")
         self.GuiVNSelectCombo.addItem("")
         self.GuiSideBarMainLayout.addWidget(self.GuiVNSelectCombo)
+        self.GuiVNSelectCombo.setItemText(0, "Virtual Network 0")
+        self.GuiVNSelectCombo.setItemText(1, "Virtual Network 1")
+
+    def setup_close_core(self):
         #Close Up Core LAbel
         self.GuiCloseUpCoreLabel = QtGui.QLabel(self.GuiWindowInternal)
         self.GuiCloseUpCoreLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.GuiCloseUpCoreLabel.setObjectName("GuiCloseUpCoreLabel")
         self.GuiSideBarMainLayout.addWidget(self.GuiCloseUpCoreLabel)
+        self.GuiCloseUpCoreLabel.setText("Close-Up Core View")
         #Core Selection Box
         self.GuiCoreSelectorCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiCoreSelectorCombo.setObjectName("GuiCoreSelectorCombo")
         self.GuiCoreSelectorCombo.activated.connect(self.close_view_core)
         self.core_selector_setup(networkAttr.CORE_CORES)
         self.GuiSideBarMainLayout.addWidget(self.GuiCoreSelectorCombo)
+        self.GuiCoreSelectorCombo.setItemText(0, "Core 0")
+        self.GuiCoreSelectorCombo.setItemText(1, "Core 1")
         #Core Exploded View Box
         self.GuiCoreExplodedView = CoreExploded(self.GuiWindowInternal, self.GuiNetwork.cores[0])
         self.GuiCoreExplodedView.setMinimumSize(QtCore.QSize(drawAttr.CORE_SIZE_EXP + 50, drawAttr.CORE_SIZE_EXP + 50))
@@ -126,11 +168,14 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiCoreInfo = CoreInfo(self.GuiWindowInternal, self.GuiNetwork.cores[0])
         self.GuiCoreInfo.setObjectName("GuiCoreInfo")
         self.GuiSideBarMainLayout.addWidget(self.GuiCoreInfo)
+
+    def setup_buffer(self):
         # Buffer Label
         self.GuiBufferLabel = QtGui.QLabel(self.GuiWindowInternal)
         self.GuiBufferLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.GuiBufferLabel.setObjectName("GuiBufferLabel")
         self.GuiSideBarMainLayout.addWidget(self.GuiBufferLabel)
+        self.GuiBufferLabel.setText("Buffer Information")
         #Buffer Select Combo Box
         self.GuiBufferSelectCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiBufferSelectCombo.setObjectName("GuiBufferSelectCombo")
@@ -140,6 +185,13 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiBufferSelectCombo.addItem("")
         self.GuiBufferSelectCombo.addItem("")
         self.GuiSideBarMainLayout.addWidget(self.GuiBufferSelectCombo)
+        self.GuiBufferSelectCombo.setItemText(0, "North Buffer")
+        self.GuiBufferSelectCombo.setItemText(1, "East Buffer")
+        self.GuiBufferSelectCombo.setItemText(2, "South Buffer")
+        self.GuiBufferSelectCombo.setItemText(3, "West Buffer")
+        self.GuiBufferSelectCombo.setItemText(4, "Core Buffer")
+
+    def setup_buffer_tables(self):
         #VC Top Table
         self.GuiVCTopTable = QtGui.QTableWidget(self.GuiWindowInternal)
         self.GuiVCTopTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -169,6 +221,24 @@ class GuiMainWindow(QtGui.QMainWindow):
         item = QtGui.QTableWidgetItem()
         self.GuiVCTopTable.setHorizontalHeaderItem(3, item)
         self.GuiSideBarMainLayout.addWidget(self.GuiVCTopTable)
+        item = self.GuiVCTopTable.verticalHeaderItem(0)
+        item.setText("Flit Id")
+        item = self.GuiVCTopTable.verticalHeaderItem(1)
+        item.setText("Flit Type")
+        item = self.GuiVCTopTable.verticalHeaderItem(2)
+        item.setText("Flit Route")
+        item = self.GuiVCTopTable.verticalHeaderItem(3)
+        item.setText("Flit Outport")
+        item = self.GuiVCTopTable.verticalHeaderItem(4)
+        item.setText("Flit Src Delay")
+        item = self.GuiVCTopTable.horizontalHeaderItem(0)
+        item.setText("VC 0")
+        item = self.GuiVCTopTable.horizontalHeaderItem(1)
+        item.setText("VC 1")
+        item = self.GuiVCTopTable.horizontalHeaderItem(2)
+        item.setText("VC 2")
+        item = self.GuiVCTopTable.horizontalHeaderItem(3)
+        item.setText("VC 3")
         #VC Bottom Table
         self.GuiVCBottomTable = QtGui.QTableWidget(self.GuiWindowInternal)
         self.GuiVCBottomTable.setAutoScroll(True)
@@ -199,100 +269,6 @@ class GuiMainWindow(QtGui.QMainWindow):
         item = QtGui.QTableWidgetItem()
         self.GuiVCBottomTable.setHorizontalHeaderItem(3, item)
         self.GuiSideBarMainLayout.addWidget(self.GuiVCBottomTable)
-
-        self.horizontalLayout.addLayout(self.GuiSideBarMainLayout)
-        self.setCentralWidget(self.GuiWindowInternal)
-
-        # Menu Bar
-        self.GuiMenuBar = QtGui.QMenuBar(self)
-        self.GuiMenuBar.setGeometry(QtCore.QRect(0, 0, 1290, 21))
-        self.GuiMenuBar.setObjectName("GuiMenuBar")
-        self.GuiFileMenu = QtGui.QMenu(self.GuiMenuBar)
-        self.GuiFileMenu.setObjectName("GuiFileMenu")
-        self.GuiGoToMenu = QtGui.QMenu(self.GuiMenuBar)
-        self.GuiGoToMenu.setObjectName("GuiGoToMenu")
-        self.GuiGarnetMenu = QtGui.QMenu(self.GuiMenuBar)
-        self.GuiGarnetMenu.setObjectName("GuiGarnetMenu")
-        self.setMenuBar(self.GuiMenuBar)
-
-        # Status Bar
-        self.statusbar = QtGui.QStatusBar(self)
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
-
-        # Menu Bar Items
-        self.actionGo_To_Cycle = QtGui.QAction(self)
-        self.actionGo_To_Cycle.setObjectName("actionGo_To_Cycle")
-        self.GuiGoTo0MenuAction = QtGui.QAction(self)
-        self.GuiGoTo0MenuAction.triggered.connect(self.go_to_cycle_0)
-        self.GuiGoTo0MenuAction.setObjectName("GuiGoTo0MenuAction")
-        self.GuiGoTo500MenuAction = QtGui.QAction(self)
-        self.GuiGoTo500MenuAction.triggered.connect(self.go_to_cycle_500)
-        self.GuiGoTo500MenuAction.setObjectName("GuiGoTo500MenuAction")
-        self.GuiGoToCycleMenuAction = QtGui.QAction(self)
-        self.GuiGoToCycleMenuAction.triggered.connect(self.got_to_cycle_x)
-        self.GuiGoToCycleMenuAction.setObjectName("GuiGoToCycleMenuAction")
-        self.GuiGarnetGenerateMenuAction = QtGui.QAction(self)
-        self.GuiGarnetGenerateMenuAction.triggered.connect(self.garnet_generator)
-        self.GuiGarnetGenerateMenuAction.setObjectName("GuiGarnetGenerateMenuAction")
-        self.GuiGarnetHelpMenuAction = QtGui.QAction(self)
-        self.GuiGarnetHelpMenuAction.setShortcut("Ctrl+H")
-        self.GuiGarnetHelpMenuAction.triggered.connect(self.garnet_help)
-        self.GuiGarnetHelpMenuAction.setObjectName("GuiGarnetHelpMenuAction")
-        self.GuiFileOpenTraceMenuAction = QtGui.QAction(self)
-        self.GuiFileOpenTraceMenuAction.setShortcut("Ctrl+O")
-        self.GuiFileOpenTraceMenuAction.triggered.connect(self.file_open_trace)
-        self.GuiFileOpenTraceMenuAction.setObjectName("GuiFileOpenTraceMenuAction")
-        self.GuiFileExitMenuAction = QtGui.QAction(self)
-        self.GuiFileExitMenuAction.setShortcut("Ctrl+Q")
-        self.GuiFileExitMenuAction.triggered.connect(self.quit_application)
-        self.GuiFileExitMenuAction.setObjectName("GuiFileExitMenuAction")
-
-        self.GuiFileMenu.addAction(self.GuiFileOpenTraceMenuAction)
-        self.GuiFileMenu.addAction(self.GuiFileExitMenuAction)
-        self.GuiGoToMenu.addAction(self.GuiGoTo0MenuAction)
-        self.GuiGoToMenu.addAction(self.GuiGoTo500MenuAction)
-        self.GuiGoToMenu.addAction(self.GuiGoToCycleMenuAction)
-        self.GuiGarnetMenu.addAction(self.GuiGarnetGenerateMenuAction)
-        self.GuiGarnetMenu.addAction(self.GuiGarnetHelpMenuAction)
-        self.GuiMenuBar.addAction(self.GuiFileMenu.menuAction())
-        self.GuiMenuBar.addAction(self.GuiGoToMenu.menuAction())
-        self.GuiMenuBar.addAction(self.GuiGarnetMenu.menuAction())
-
-
-        QtCore.QMetaObject.connectSlotsByName(self)
-
-        self.setWindowTitle("Loupe")
-        self.GuiVirtualNetworkSelectLabel.setText("Virtual Network Select")
-        self.GuiCloseUpCoreLabel.setText("Close-Up Core View")
-        self.GuiBufferLabel.setText("Buffer Information")
-        self.GuiVNSelectCombo.setItemText(0, "Virtual Network 0")
-        self.GuiVNSelectCombo.setItemText(1, "Virtual Network 1")
-        self.GuiCoreSelectorCombo.setItemText(0, "Core 0")
-        self.GuiCoreSelectorCombo.setItemText(1, "Core 1")
-        self.GuiBufferSelectCombo.setItemText(0, "North Buffer")
-        self.GuiBufferSelectCombo.setItemText(1, "East Buffer")
-        self.GuiBufferSelectCombo.setItemText(2, "South Buffer")
-        self.GuiBufferSelectCombo.setItemText(3, "West Buffer")
-        self.GuiBufferSelectCombo.setItemText(4, "Core Buffer")
-        item = self.GuiVCTopTable.verticalHeaderItem(0)
-        item.setText("Flit Id")
-        item = self.GuiVCTopTable.verticalHeaderItem(1)
-        item.setText("Flit Type")
-        item = self.GuiVCTopTable.verticalHeaderItem(2)
-        item.setText("Flit Route")
-        item = self.GuiVCTopTable.verticalHeaderItem(3)
-        item.setText("Flit Outport")
-        item = self.GuiVCTopTable.verticalHeaderItem(4)
-        item.setText("Flit Src Delay")
-        item = self.GuiVCTopTable.horizontalHeaderItem(0)
-        item.setText("VC 0")
-        item = self.GuiVCTopTable.horizontalHeaderItem(1)
-        item.setText("VC 1")
-        item = self.GuiVCTopTable.horizontalHeaderItem(2)
-        item.setText("VC 2")
-        item = self.GuiVCTopTable.horizontalHeaderItem(3)
-        item.setText("VC 3")
         item = self.GuiVCBottomTable.verticalHeaderItem(0)
         item.setText("Flit Id")
         item = self.GuiVCBottomTable.verticalHeaderItem(1)
@@ -311,23 +287,78 @@ class GuiMainWindow(QtGui.QMainWindow):
         item.setText("VC 6")
         item = self.GuiVCBottomTable.horizontalHeaderItem(3)
         item.setText("VC 7")
-        self.GuiAutoCycleLabel.setText("Animation/Auto Cycle")
-        self.GuiAutoCycleStart.setText("Start")
-        self.GuiAutoCycleStop.setText("Stop")
-        self.GuiManualCycleLabel.setText("Manual Cycle")
-        self.GuiPreviousCyclePb.setText("Previous Cycle")
-        self.GuiNextCyclePb.setText("Next Cycle")
+
+        self.horizontalLayout.addLayout(self.GuiSideBarMainLayout)
+        self.setCentralWidget(self.GuiWindowInternal)
+
+    def setup_menu_bar(self):
+        # Menu Bar
+        self.GuiMenuBar = QtGui.QMenuBar(self)
+        self.GuiMenuBar.setGeometry(QtCore.QRect(0, 0, 1290, 21))
+        self.GuiMenuBar.setObjectName("GuiMenuBar")
+        self.GuiFileMenu = QtGui.QMenu(self.GuiMenuBar)
+        self.GuiFileMenu.setObjectName("GuiFileMenu")
         self.GuiFileMenu.setTitle("File")
+        self.GuiGoToMenu = QtGui.QMenu(self.GuiMenuBar)
+        self.GuiGoToMenu.setObjectName("GuiGoToMenu")
         self.GuiGoToMenu.setTitle("Go To")
+        self.GuiGarnetMenu = QtGui.QMenu(self.GuiMenuBar)
+        self.GuiGarnetMenu.setObjectName("GuiGarnetMenu")
         self.GuiGarnetMenu.setTitle("Garnet")
+        self.setMenuBar(self.GuiMenuBar)
+
+        # Menu Bar Items
+        self.actionGo_To_Cycle = QtGui.QAction(self)
+        self.actionGo_To_Cycle.setObjectName("actionGo_To_Cycle")
         self.actionGo_To_Cycle.setText("Go To Cycle...")
+        self.GuiGoTo0MenuAction = QtGui.QAction(self)
+        self.GuiGoTo0MenuAction.triggered.connect(self.go_to_cycle_0)
+        self.GuiGoTo0MenuAction.setObjectName("GuiGoTo0MenuAction")
         self.GuiGoTo0MenuAction.setText("Cycle 0")
+        self.GuiGoTo500MenuAction = QtGui.QAction(self)
+        self.GuiGoTo500MenuAction.triggered.connect(self.go_to_cycle_500)
+        self.GuiGoTo500MenuAction.setObjectName("GuiGoTo500MenuAction")
         self.GuiGoTo500MenuAction.setText("Cycle 500")
+        self.GuiGoToCycleMenuAction = QtGui.QAction(self)
+        self.GuiGoToCycleMenuAction.triggered.connect(self.got_to_cycle_x)
+        self.GuiGoToCycleMenuAction.setObjectName("GuiGoToCycleMenuAction")
         self.GuiGoToCycleMenuAction.setText("Cycle ...")
+        self.GuiGarnetGenerateMenuAction = QtGui.QAction(self)
+        self.GuiGarnetGenerateMenuAction.triggered.connect(self.garnet_generator)
+        self.GuiGarnetGenerateMenuAction.setObjectName("GuiGarnetGenerateMenuAction")
         self.GuiGarnetGenerateMenuAction.setText("Generate Garnet Run Command")
+        self.GuiGarnetHelpMenuAction = QtGui.QAction(self)
+        self.GuiGarnetHelpMenuAction.setShortcut("Ctrl+H")
+        self.GuiGarnetHelpMenuAction.triggered.connect(self.garnet_help)
+        self.GuiGarnetHelpMenuAction.setObjectName("GuiGarnetHelpMenuAction")
         self.GuiGarnetHelpMenuAction.setText("Help")
+        self.GuiFileOpenTraceMenuAction = QtGui.QAction(self)
+        self.GuiFileOpenTraceMenuAction.setShortcut("Ctrl+O")
+        self.GuiFileOpenTraceMenuAction.triggered.connect(self.file_open_trace)
+        self.GuiFileOpenTraceMenuAction.setObjectName("GuiFileOpenTraceMenuAction")
         self.GuiFileOpenTraceMenuAction.setText("Open Trace...")
+        self.GuiFileExitMenuAction = QtGui.QAction(self)
+        self.GuiFileExitMenuAction.setShortcut("Ctrl+Q")
+        self.GuiFileExitMenuAction.triggered.connect(self.quit_application)
+        self.GuiFileExitMenuAction.setObjectName("GuiFileExitMenuAction")
         self.GuiFileExitMenuAction.setText("Quit")
+
+        self.GuiFileMenu.addAction(self.GuiFileOpenTraceMenuAction)
+        self.GuiFileMenu.addAction(self.GuiFileExitMenuAction)
+        self.GuiGoToMenu.addAction(self.GuiGoTo0MenuAction)
+        self.GuiGoToMenu.addAction(self.GuiGoTo500MenuAction)
+        self.GuiGoToMenu.addAction(self.GuiGoToCycleMenuAction)
+        self.GuiGarnetMenu.addAction(self.GuiGarnetGenerateMenuAction)
+        self.GuiGarnetMenu.addAction(self.GuiGarnetHelpMenuAction)
+        self.GuiMenuBar.addAction(self.GuiFileMenu.menuAction())
+        self.GuiMenuBar.addAction(self.GuiGoToMenu.menuAction())
+        self.GuiMenuBar.addAction(self.GuiGarnetMenu.menuAction())
+
+    def setup_status_bar(self):
+        # Status Bar
+        self.statusbar = QtGui.QStatusBar(self)
+        self.statusbar.setObjectName("statusbar")
+        self.setStatusBar(self.statusbar)
 
     def setup_vc_tables(self):
         pass
