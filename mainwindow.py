@@ -62,7 +62,7 @@ class GuiMainWindow(QtGui.QMainWindow):
 
     def setup_network(self):
         #Network
-        self.GuiNetwork = Network(self.GuiWindowInternal, "Mesh", 16, 4, 8, 5000)
+        self.GuiNetwork = Network(self.GuiWindowInternal, "Mesh", 9, 3, 8, 5000)
         network_size = self.calc_network_size()
         self.GuiNetwork.setMinimumSize(network_size)
         self.GuiNetwork.setObjectName("GuiNetworkFrame")
@@ -138,11 +138,8 @@ class GuiMainWindow(QtGui.QMainWindow):
         #Virtual Network Select Box
         self.GuiVNSelectCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiVNSelectCombo.setObjectName("GuiVNSelectCombo")
-        self.GuiVNSelectCombo.addItem("")
-        self.GuiVNSelectCombo.addItem("")
         self.GuiSideBarMainLayout.addWidget(self.GuiVNSelectCombo)
-        self.GuiVNSelectCombo.setItemText(0, "Virtual Network 0")
-        self.GuiVNSelectCombo.setItemText(1, "Virtual Network 1")
+        self.vn_selector_setup(5)
 
     def setup_close_core(self):
         #Close Up Core LAbel
@@ -320,7 +317,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiGoTo500MenuAction.setObjectName("GuiGoTo500MenuAction")
         self.GuiGoTo500MenuAction.setText("Cycle 500")
         self.GuiGoToCycleMenuAction = QtGui.QAction(self)
-        self.GuiGoToCycleMenuAction.triggered.connect(self.got_to_cycle_x)
+        self.GuiGoToCycleMenuAction.triggered.connect(self.go_to_cycle_x)
         self.GuiGoToCycleMenuAction.setObjectName("GuiGoToCycleMenuAction")
         self.GuiGoToCycleMenuAction.setText("Cycle ...")
         self.GuiGarnetGenerateMenuAction = QtGui.QAction(self)
@@ -390,6 +387,19 @@ class GuiMainWindow(QtGui.QMainWindow):
             core_select_text = "Core " + str(index)
             self.GuiCoreSelectorCombo.setItemText(index, core_select_text)
 
+    def vn_selector_setup(self, vns):
+        for index in range(vns):
+            self.GuiVNSelectCombo.addItem("")
+            vn_select_text = "Virtual Network " + str(index)
+            self.GuiVNSelectCombo.setItemText(index, vn_select_text)
+
+    def buffer_selector_setup(self, buffers):
+        # for index in range(buffers):
+        #     self.GuiCoreSelectorCombo.addItem("")
+        #     core_select_text = "Core " + str(index)
+        #     self.GuiCoreSelectorCombo.setItemText(index, core_select_text)
+        pass
+
     def close_view_core(self):
         core_num = self.GuiCoreSelectorCombo.currentIndex()
         print(core_num)
@@ -401,7 +411,17 @@ class GuiMainWindow(QtGui.QMainWindow):
     def file_open_trace(self):
         dialog = QtGui.QFileDialog()
         name = QtGui.QFileDialog.getOpenFileName(dialog, 'Open File')
-        file = open(name, 'r')
+        if name.endswith('.csv'):
+            file = open(name, 'r')
+        else:
+            self.file_open_error_message()
+
+    def file_open_error_message(self):
+        message = QtGui.QMessageBox()
+        message.setWindowTitle("Error opening file")
+        message.setText("File selected must be a .csv")
+        message.setIcon(QtGui.QMessageBox.Warning)
+        message.exec_()
 
     def quit_application(self):
         print("Closing App...")
@@ -420,14 +440,18 @@ class GuiMainWindow(QtGui.QMainWindow):
         if cycle_num is not None:
             self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
             self.GuiCycleCounter.display(cycle_num)
+        else:
+            self.go_to_cycle_error()
 
     def go_to_cycle_500(self):
         cycle_num = self.GuiNetwork.go_to_cycle(500)
         if cycle_num is not None:
             self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
             self.GuiCycleCounter.display(cycle_num)
+        else:
+            self.go_to_cycle_error()
 
-    def got_to_cycle_x(self):
+    def go_to_cycle_x(self):
         input_dialog = QtGui.QInputDialog()
         text, ok = QtGui.QInputDialog.getText(input_dialog, 'Input Cycle Number', 'Enter Cycle:')
         if ok and int(text) >= 0:
@@ -436,6 +460,16 @@ class GuiMainWindow(QtGui.QMainWindow):
             if cycle_num is not None:
                 self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
                 self.GuiCycleCounter.display(cycle_num)
+            else:
+                self.go_to_cycle_error(cycle_num)
+
+    def go_to_cycle_error(self):
+        message = QtGui.QMessageBox()
+        message.setWindowTitle("Invalid Cycle Number")
+        string = "Cycle number must be in between 0 - " + str(networkAttr.NET_TOTCYCLES) + "\n"
+        message.setText(string)
+        message.setIcon(QtGui.QMessageBox.Warning)
+        message.exec_()
 
     def update_gui(self):
         self.GuiNetwork.update_network()
