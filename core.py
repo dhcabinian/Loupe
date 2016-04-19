@@ -35,14 +35,14 @@ class Core(QtGui.QWidget):
     def create_buffers(self):
         # Create Buffers
         if self.col + 1 < networkAttr.CORE_COLS:
-            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "SOUTH"))
+            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "South"))
         if self.col - 1 >= 0:
-            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "NORTH"))
+            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "North"))
         if self.row + 1 < networkAttr.CORE_ROWS:
-            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "EAST"))
+            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "East"))
         if self.row - 1 >= 0:
-            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "WEST"))
-        self.buffers.append(Buffer(self.core_id, self.top_left_corner, "CORE"))
+            self.buffers.append(Buffer(self.core_id, self.top_left_corner, "West"))
+        self.buffers.append(Buffer(self.core_id, self.top_left_corner, "Core"))
 
     def draw_core(self, painter):
         painter.drawRect(self.rect)

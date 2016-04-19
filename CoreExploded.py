@@ -55,14 +55,14 @@ class CoreExploded(QtGui.QWidget):
     def create_buffers(self):
         # Create Buffers
         if self.col + 1 < networkAttr.CORE_COLS:
-            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "SOUTH", 1))
+            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "South", 1))
         if self.col - 1 >= 0:
-            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "NORTH", 1))
+            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "North", 1))
         if self.row + 1 < networkAttr.CORE_ROWS:
-            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "EAST", 1))
+            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "East", 1))
         if self.row - 1 >= 0:
-            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "WEST", 1))
-        self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "CORE", 1))
+            self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "West", 1))
+        self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "Core", 1))
 
     def paintEvent(self, event):
         painter = QtGui.QPainter()

@@ -47,70 +47,70 @@ class Buffer(object):
                 ypos = self.core_top_left_corner.y()
                 if index % Buffer.ROW_DIV == 0:
                     # Middle Left
-                    if self.link_dir == "NORTH":
+                    if self.link_dir == "North":
                         xpos += Buffer.N_OFFSET[0] - self.size.height()
                         ypos += Buffer.N_OFFSET[1] + self.size.height() * row_num
-                    elif self.link_dir == "SOUTH":
+                    elif self.link_dir == "South":
                         xpos += Buffer.S_OFFSET[0]
                         ypos += Buffer.S_OFFSET[1] - self.size.height() * row_num - self.size.height()
-                    elif self.link_dir == "EAST":
+                    elif self.link_dir == "East":
                         xpos += Buffer.E_OFFSET[0] - self.size.height() * row_num - self.size.height()
                         ypos += Buffer.E_OFFSET[1]
-                    elif self.link_dir == "WEST":
+                    elif self.link_dir == "West":
                         xpos += Buffer.W_OFFSET[0] + self.size.height() * row_num
                         ypos += Buffer.W_OFFSET[1]
-                    elif self.link_dir == "CORE":
+                    elif self.link_dir == "Core":
                         xpos += Buffer.C_OFFSET[0] - self.size.height()
                         ypos += Buffer.C_OFFSET[1] - self.size.height() * row_num
                 elif index % Buffer.ROW_DIV == 1:
                     # Middle Right
-                    if self.link_dir == "NORTH":
+                    if self.link_dir == "North":
                         xpos += Buffer.N_OFFSET[0]
                         ypos += Buffer.N_OFFSET[1] + self.size.height() * row_num - self.size.height()
-                    elif self.link_dir == "SOUTH":
+                    elif self.link_dir == "South":
                         xpos += Buffer.S_OFFSET[0] - self.size.height()
                         ypos += Buffer.S_OFFSET[1] - self.size.height() * row_num
-                    elif self.link_dir == "EAST":
+                    elif self.link_dir == "East":
                         xpos += Buffer.E_OFFSET[0] - self.size.height() * row_num
                         ypos += Buffer.E_OFFSET[1] - self.size.height()
-                    elif self.link_dir == "WEST":
+                    elif self.link_dir == "West":
                         xpos += Buffer.W_OFFSET[0] + self.size.height() * row_num - self.size.height()
                         ypos += Buffer.W_OFFSET[1] - self.size.height()
-                    elif self.link_dir == "CORE":
+                    elif self.link_dir == "Core":
                         xpos += Buffer.C_OFFSET[0]
                         ypos += Buffer.C_OFFSET[1] - self.size.height() * row_num + self.size.height()
                 elif index % Buffer.ROW_DIV == 2:
                     # Outer Left
-                    if self.link_dir == "NORTH":
+                    if self.link_dir == "North":
                         xpos += Buffer.N_OFFSET[0] - 2 * self.size.height()
                         ypos += Buffer.N_OFFSET[1] + self.size.height() * row_num - self.size.height()
-                    elif self.link_dir == "SOUTH":
+                    elif self.link_dir == "South":
                         xpos += Buffer.S_OFFSET[0] + self.size.height()
                         ypos += Buffer.S_OFFSET[1] - self.size.height() * row_num
-                    elif self.link_dir == "EAST":
+                    elif self.link_dir == "East":
                         xpos += Buffer.E_OFFSET[0] - self.size.height() * row_num
                         ypos += Buffer.E_OFFSET[1] + 2 * self.size.height() - self.size.height()
-                    elif self.link_dir == "WEST":
+                    elif self.link_dir == "West":
                         xpos += Buffer.W_OFFSET[0] + self.size.height() * row_num - self.size.height()
                         ypos += Buffer.W_OFFSET[1] + self.size.height()
-                    elif self.link_dir == "CORE":
+                    elif self.link_dir == "Core":
                         xpos += Buffer.C_OFFSET[0] - 2 * self.size.height()
                         ypos += Buffer.C_OFFSET[1] - self.size.height() * row_num + self.size.height()
                 elif index % Buffer.ROW_DIV == 3:
                     # Outer Right
-                    if self.link_dir == "NORTH":
+                    if self.link_dir == "North":
                         xpos += Buffer.N_OFFSET[0] + self.size.height()
                         ypos += Buffer.N_OFFSET[1] + self.size.height() * row_num - self.size.height()
-                    elif self.link_dir == "SOUTH":
+                    elif self.link_dir == "South":
                         xpos += Buffer.S_OFFSET[0] - self.size.height() * 2
                         ypos += Buffer.S_OFFSET[1] - self.size.height() * row_num
-                    elif self.link_dir == "EAST":
+                    elif self.link_dir == "East":
                         xpos += Buffer.E_OFFSET[0] - self.size.height() * row_num
                         ypos += Buffer.E_OFFSET[1] - self.size.height() - self.size.height()
-                    elif self.link_dir == "WEST":
+                    elif self.link_dir == "West":
                         xpos += Buffer.W_OFFSET[0] + self.size.height() * row_num - self.size.height()
                         ypos += Buffer.W_OFFSET[1] - 2 * self.size.height()
-                    elif self.link_dir == "CORE":
+                    elif self.link_dir == "Core":
                         xpos += Buffer.C_OFFSET[0] + self.size.height()
                         ypos += Buffer.C_OFFSET[1] - self.size.height() * row_num + self.size.height()
                 self.top_left_corners.append(QtCore.QPointF(xpos, ypos))

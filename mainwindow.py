@@ -3,9 +3,12 @@ from network import Network
 from networkAttr import networkAttr
 from drawAttr import drawAttr
 from CoreExploded import CoreExploded
-from CoreInformation import CoreInfo
+from BuffInfo import BuffInfo
 from generateGarnet import GuiGenerateGarnet
+#from parser import Parser
 import sys
+import threading
+#import time
 
 
 class GuiMainWindow(QtGui.QMainWindow):
@@ -15,6 +18,9 @@ class GuiMainWindow(QtGui.QMainWindow):
 
     def setup(self):
         self.GuiGarnet = None
+        self.timer = None
+        self.autoCycle = False
+        #self.parser = Parser()
         self.setup_main_window()
         self.setup_cycle()
         self.setup_network()
@@ -63,7 +69,7 @@ class GuiMainWindow(QtGui.QMainWindow):
     def setup_network(self):
         #Network
         self.GuiNetwork = Network(self.GuiWindowInternal, "Mesh", 9, 3, 8, 5000)
-        network_size = self.calc_network_size()
+        network_size = self.setup_calc_network_size()
         self.GuiNetwork.setMinimumSize(network_size)
         self.GuiNetwork.setObjectName("GuiNetworkFrame")
         self.GuiFullNetworkLayout.addWidget(self.GuiNetwork)
@@ -92,11 +98,13 @@ class GuiMainWindow(QtGui.QMainWindow):
         #Auto Cycle Start
         self.GuiAutoCycleStart = QtGui.QPushButton(self.GuiWindowInternal)
         self.GuiAutoCycleStart.setObjectName("GuiAutoCycleStart")
+        self.GuiAutoCycleStart.clicked.connect(self.act_start_cycle)
         self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStart)
         self.GuiAutoCycleStart.setText("Start")
         #Auto Cycle Stop
         self.GuiAutoCycleStop = QtGui.QPushButton(self.GuiWindowInternal)
         self.GuiAutoCycleStop.setObjectName("GuiAutoCycleStop")
+        self.GuiAutoCycleStop.clicked.connect(self.act_stop_cycle)
         self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStop)
         self.GuiAutoCycleStop.setText("Stop")
 
@@ -115,13 +123,13 @@ class GuiMainWindow(QtGui.QMainWindow):
         # Manual Cycle Previous PB
         self.GuiPreviousCyclePb = QtGui.QPushButton(self.GuiWindowInternal)
         self.GuiPreviousCyclePb.setObjectName("GuiPreviousCyclePb")
-        self.GuiPreviousCyclePb.clicked.connect(self.previous_cycle)
+        self.GuiPreviousCyclePb.clicked.connect(self.act_previous_cycle)
         self.GuiManualCycleLayout.addWidget(self.GuiPreviousCyclePb)
         self.GuiPreviousCyclePb.setText("Previous Cycle")
         # Manual Cycle Next PB
         self.GuiNextCyclePb = QtGui.QPushButton(self.GuiWindowInternal)
         self.GuiNextCyclePb.setObjectName("GuiNextCyclePb")
-        self.GuiNextCyclePb.clicked.connect(self.next_cycle)
+        self.GuiNextCyclePb.clicked.connect(self.act_next_cycle)
         self.GuiManualCycleLayout.addWidget(self.GuiNextCyclePb)
         self.GuiNextCyclePb.setText("Next Cycle")
 
@@ -138,8 +146,9 @@ class GuiMainWindow(QtGui.QMainWindow):
         #Virtual Network Select Box
         self.GuiVNSelectCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiVNSelectCombo.setObjectName("GuiVNSelectCombo")
+        self.GuiVNSelectCombo.activated.connect(self.act_vn_select)
         self.GuiSideBarMainLayout.addWidget(self.GuiVNSelectCombo)
-        self.vn_selector_setup(5)
+        self.setup_vn_selector(5)
 
     def setup_close_core(self):
         #Close Up Core LAbel
@@ -151,20 +160,14 @@ class GuiMainWindow(QtGui.QMainWindow):
         #Core Selection Box
         self.GuiCoreSelectorCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiCoreSelectorCombo.setObjectName("GuiCoreSelectorCombo")
-        self.GuiCoreSelectorCombo.activated.connect(self.close_view_core)
-        self.core_selector_setup(networkAttr.CORE_CORES)
+        self.GuiCoreSelectorCombo.activated.connect(self.act_close_view_core)
+        self.setup_core_selector(networkAttr.CORE_CORES)
         self.GuiSideBarMainLayout.addWidget(self.GuiCoreSelectorCombo)
-        self.GuiCoreSelectorCombo.setItemText(0, "Core 0")
-        self.GuiCoreSelectorCombo.setItemText(1, "Core 1")
         #Core Exploded View Box
         self.GuiCoreExplodedView = CoreExploded(self.GuiWindowInternal, self.GuiNetwork.cores[0])
         self.GuiCoreExplodedView.setMinimumSize(QtCore.QSize(drawAttr.CORE_SIZE_EXP + 50, drawAttr.CORE_SIZE_EXP + 50))
         self.GuiCoreExplodedView.setObjectName("GuiCoreExplodedView")
         self.GuiSideBarMainLayout.addWidget(self.GuiCoreExplodedView)
-        #Core Information
-        self.GuiCoreInfo = CoreInfo(self.GuiWindowInternal, self.GuiNetwork.cores[0])
-        self.GuiCoreInfo.setObjectName("GuiCoreInfo")
-        self.GuiSideBarMainLayout.addWidget(self.GuiCoreInfo)
 
     def setup_buffer(self):
         # Buffer Label
@@ -176,115 +179,39 @@ class GuiMainWindow(QtGui.QMainWindow):
         #Buffer Select Combo Box
         self.GuiBufferSelectCombo = QtGui.QComboBox(self.GuiWindowInternal)
         self.GuiBufferSelectCombo.setObjectName("GuiBufferSelectCombo")
-        self.GuiBufferSelectCombo.addItem("")
-        self.GuiBufferSelectCombo.addItem("")
-        self.GuiBufferSelectCombo.addItem("")
-        self.GuiBufferSelectCombo.addItem("")
-        self.GuiBufferSelectCombo.addItem("")
+        self.GuiBufferSelectCombo.activated.connect(self.act_buffer_select)
+        self.setup_buffer_selector(self.GuiNetwork.cores[self.GuiCoreSelectorCombo.currentIndex()])
         self.GuiSideBarMainLayout.addWidget(self.GuiBufferSelectCombo)
-        self.GuiBufferSelectCombo.setItemText(0, "North Buffer")
-        self.GuiBufferSelectCombo.setItemText(1, "East Buffer")
-        self.GuiBufferSelectCombo.setItemText(2, "South Buffer")
-        self.GuiBufferSelectCombo.setItemText(3, "West Buffer")
-        self.GuiBufferSelectCombo.setItemText(4, "Core Buffer")
 
     def setup_buffer_tables(self):
-        #VC Top Table
-        self.GuiVCTopTable = QtGui.QTableWidget(self.GuiWindowInternal)
-        self.GuiVCTopTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.GuiVCTopTable.setProperty("showDropIndicator", False)
-        self.GuiVCTopTable.setDragDropOverwriteMode(False)
-        self.GuiVCTopTable.setAlternatingRowColors(False)
-        self.GuiVCTopTable.setShowGrid(True)
-        self.GuiVCTopTable.setObjectName("GuiVCTopTable")
-        self.GuiVCTopTable.setColumnCount(4)
-        self.GuiVCTopTable.setRowCount(5)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setVerticalHeaderItem(0, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setVerticalHeaderItem(1, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setVerticalHeaderItem(2, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setVerticalHeaderItem(3, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setVerticalHeaderItem(4, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setHorizontalHeaderItem(0, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setHorizontalHeaderItem(1, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setHorizontalHeaderItem(2, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCTopTable.setHorizontalHeaderItem(3, item)
-        self.GuiSideBarMainLayout.addWidget(self.GuiVCTopTable)
-        item = self.GuiVCTopTable.verticalHeaderItem(0)
-        item.setText("Flit Id")
-        item = self.GuiVCTopTable.verticalHeaderItem(1)
-        item.setText("Flit Type")
-        item = self.GuiVCTopTable.verticalHeaderItem(2)
-        item.setText("Flit Route")
-        item = self.GuiVCTopTable.verticalHeaderItem(3)
-        item.setText("Flit Outport")
-        item = self.GuiVCTopTable.verticalHeaderItem(4)
-        item.setText("Flit Src Delay")
-        item = self.GuiVCTopTable.horizontalHeaderItem(0)
-        item.setText("VC 0")
-        item = self.GuiVCTopTable.horizontalHeaderItem(1)
-        item.setText("VC 1")
-        item = self.GuiVCTopTable.horizontalHeaderItem(2)
-        item.setText("VC 2")
-        item = self.GuiVCTopTable.horizontalHeaderItem(3)
-        item.setText("VC 3")
-        #VC Bottom Table
-        self.GuiVCBottomTable = QtGui.QTableWidget(self.GuiWindowInternal)
-        self.GuiVCBottomTable.setAutoScroll(True)
-        self.GuiVCBottomTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.GuiVCBottomTable.setDragDropOverwriteMode(False)
-        self.GuiVCBottomTable.setDragDropMode(QtGui.QAbstractItemView.NoDragDrop)
-        self.GuiVCBottomTable.setAlternatingRowColors(False)
-        self.GuiVCBottomTable.setShowGrid(True)
-        self.GuiVCBottomTable.setObjectName("GuiVCBottomTable")
-        self.GuiVCBottomTable.setColumnCount(4)
-        self.GuiVCBottomTable.setRowCount(5)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setVerticalHeaderItem(0, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setVerticalHeaderItem(1, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setVerticalHeaderItem(2, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setVerticalHeaderItem(3, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setVerticalHeaderItem(4, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setHorizontalHeaderItem(0, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setHorizontalHeaderItem(1, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setHorizontalHeaderItem(2, item)
-        item = QtGui.QTableWidgetItem()
-        self.GuiVCBottomTable.setHorizontalHeaderItem(3, item)
-        self.GuiSideBarMainLayout.addWidget(self.GuiVCBottomTable)
-        item = self.GuiVCBottomTable.verticalHeaderItem(0)
-        item.setText("Flit Id")
-        item = self.GuiVCBottomTable.verticalHeaderItem(1)
-        item.setText("Flit Type")
-        item = self.GuiVCBottomTable.verticalHeaderItem(2)
-        item.setText("Flit Route")
-        item = self.GuiVCBottomTable.verticalHeaderItem(3)
-        item.setText("Flit Outport")
-        item = self.GuiVCBottomTable.verticalHeaderItem(4)
-        item.setText("Flit Src Delay")
-        item = self.GuiVCBottomTable.horizontalHeaderItem(0)
-        item.setText("VC 4")
-        item = self.GuiVCBottomTable.horizontalHeaderItem(1)
-        item.setText("VC 5")
-        item = self.GuiVCBottomTable.horizontalHeaderItem(2)
-        item.setText("VC 6")
-        item = self.GuiVCBottomTable.horizontalHeaderItem(3)
-        item.setText("VC 7")
+        self.BuffInfo = BuffInfo()
+        if networkAttr.CORE_VCS > 0:
+            # VC Top Table
+            self.GuiVCTopTable = QtGui.QTableWidget(self.GuiWindowInternal)
+            self.GuiVCTopTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.GuiVCTopTable.setProperty("showDropIndicator", False)
+            self.GuiVCTopTable.setDragDropOverwriteMode(False)
+            self.GuiVCTopTable.setAlternatingRowColors(False)
+            self.GuiVCTopTable.setShowGrid(True)
+            self.GuiVCTopTable.setObjectName("GuiVCTopTable")
+            self.GuiSideBarMainLayout.addWidget(self.GuiVCTopTable)
+            self.BuffInfo.set_top_table(self.GuiVCTopTable)
+        if networkAttr.CORE_VCS > 4:
+            #VC Bottom Table
+            self.GuiVCBottomTable = QtGui.QTableWidget(self.GuiWindowInternal)
+            self.GuiVCBottomTable.setAutoScroll(True)
+            self.GuiVCBottomTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+            self.GuiVCBottomTable.setDragDropOverwriteMode(False)
+            self.GuiVCBottomTable.setDragDropMode(QtGui.QAbstractItemView.NoDragDrop)
+            self.GuiVCBottomTable.setAlternatingRowColors(False)
+            self.GuiVCBottomTable.setShowGrid(True)
+            self.GuiVCBottomTable.setObjectName("GuiVCBottomTable")
+            self.GuiSideBarMainLayout.addWidget(self.GuiVCBottomTable)
+            self.BuffInfo.set_bottom_table(self.GuiVCBottomTable)
 
+        self.BuffInfo.setup_vc_tables(self.GuiVCTopTable, "Top")
+        self.BuffInfo.setup_vc_tables(self.GuiVCBottomTable, "Bottom")
+        self.BuffInfo.setup_both_tables()
         self.horizontalLayout.addLayout(self.GuiSideBarMainLayout)
         self.setCentralWidget(self.GuiWindowInternal)
 
@@ -357,22 +284,60 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
 
-    def setup_vc_tables(self):
-        pass
-
-    def calc_network_size(self):
+    def setup_calc_network_size(self):
         width = networkAttr.CORE_COLS * drawAttr.CORE_SIZE \
                 + (networkAttr.CORE_COLS - 1) * drawAttr.LINK_LENGTH + 10
         height = width - 8
         return QtCore.QSize(width, height)
 
-    def next_cycle(self):
-        print("next cycle")
-        cycle_num = self.GuiNetwork.next_cycle()
-        self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
-        self.GuiCycleCounter.display(cycle_num)
+    def setup_core_selector(self, core_num):
+        for index in range(core_num):
+            self.GuiCoreSelectorCombo.addItem("")
+            core_select_text = "Core " + str(index)
+            self.GuiCoreSelectorCombo.setItemText(index, core_select_text)
 
-    def previous_cycle(self):
+    def setup_vn_selector(self, vns):
+        for index in range(vns):
+            self.GuiVNSelectCombo.addItem("")
+            vn_select_text = "Virtual Network " + str(index)
+            self.GuiVNSelectCombo.setItemText(index, vn_select_text)
+
+    def setup_buffer_selector(self, core):
+        self.GuiBufferSelectCombo.clear()
+        for index, buf in enumerate(core.get_buffers()):
+            self.GuiBufferSelectCombo.addItem("")
+            text = buf.link_dir.title() + " Buffer"
+            self.GuiBufferSelectCombo.setItemText(index, text)
+
+    # Action Methods
+
+    # # Cycle Push Buttons # #
+
+    def act_start_cycle(self):
+        self.autoCycle = True
+        if self.timer is None:
+            self.timer = threading.Timer(2.0, self.act_next_cycle)
+        while self.autoCycle:
+            # self.timer.
+            print("Start")
+
+    # def printit():
+    #     threading.Timer(5.0, printit).start()
+    #     print
+    #     "Hello, World!"
+    #
+    # printit()
+
+
+    def act_stop_cycle(self):
+        self.autoCycle = False
+        if self.timer is None:
+            pass
+        else:
+            self.timer.cancel()
+        print("Stop")
+
+    def act_previous_cycle(self):
         print("previous cycle")
         cycle_num = self.GuiNetwork.prev_cycle()
         if cycle_num is None:
@@ -381,38 +346,40 @@ class GuiMainWindow(QtGui.QMainWindow):
             self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
             self.GuiCycleCounter.display(cycle_num)
 
-    def core_selector_setup(self, core_num):
-        for index in range(core_num):
-            self.GuiCoreSelectorCombo.addItem("")
-            core_select_text = "Core " + str(index)
-            self.GuiCoreSelectorCombo.setItemText(index, core_select_text)
+    def act_next_cycle(self):
+        print("next cycle")
+        cycle_num = self.GuiNetwork.next_cycle()
+        self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
+        self.GuiCycleCounter.display(cycle_num)
 
-    def vn_selector_setup(self, vns):
-        for index in range(vns):
-            self.GuiVNSelectCombo.addItem("")
-            vn_select_text = "Virtual Network " + str(index)
-            self.GuiVNSelectCombo.setItemText(index, vn_select_text)
+    def act_vn_select(self):
+        print(self.GuiVNSelectCombo.currentText())
 
-    def buffer_selector_setup(self, buffers):
-        # for index in range(buffers):
-        #     self.GuiCoreSelectorCombo.addItem("")
-        #     core_select_text = "Core " + str(index)
-        #     self.GuiCoreSelectorCombo.setItemText(index, core_select_text)
-        pass
-
-    def close_view_core(self):
+    def act_close_view_core(self):
         core_num = self.GuiCoreSelectorCombo.currentIndex()
         print(core_num)
         self.GuiCoreExplodedView.update_core(self.GuiNetwork.cores[core_num])
         self.GuiCoreExplodedView.update()
-        self.GuiCoreInfo.update_core_info(self.GuiNetwork.cores[core_num])
-        self.GuiCoreInfo.update()
+
+    def act_buffer_select(self):
+        buff_index = self.GuiCoreSelectorCombo.currentIndex()
+        buff_text = self.GuiBufferSelectCombo.currentText()
+        print(buff_text)
+        self.BuffInfo.update_tables(buff_index)
+
+    # Menu Bar Methods #
+
+    # # File Methods # #
+    def quit_application(self):
+        print("Closing App...")
+        sys.exit()
 
     def file_open_trace(self):
         dialog = QtGui.QFileDialog()
         name = QtGui.QFileDialog.getOpenFileName(dialog, 'Open File')
         if name.endswith('.csv'):
-            file = open(name, 'r')
+            pass
+            #self.parser.open_trace(name)
         else:
             self.file_open_error_message()
 
@@ -423,10 +390,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         message.setIcon(QtGui.QMessageBox.Warning)
         message.exec_()
 
-    def quit_application(self):
-        print("Closing App...")
-        sys.exit()
-
+    # # Garnet Methods # #
     def garnet_generator(self):
         print("Garnet")
         self.GuiGarnet = GuiGenerateGarnet()
@@ -435,6 +399,7 @@ class GuiMainWindow(QtGui.QMainWindow):
     def garnet_help(self):
         print("Garnet Help")
 
+    # # Cycle Methods # #
     def go_to_cycle_0(self):
         cycle_num = self.GuiNetwork.go_to_cycle(0)
         if cycle_num is not None:
@@ -471,12 +436,12 @@ class GuiMainWindow(QtGui.QMainWindow):
         message.setIcon(QtGui.QMessageBox.Warning)
         message.exec_()
 
+    # Update Gui Methods #
+
     def update_gui(self):
         self.GuiNetwork.update_network()
         core_num = self.GuiCoreSelectorCombo.currentIndex()
-        self.GuiCoreInfo.update_core_info(self.GuiNetwork.cores[core_num])
         self.GuiCoreExplodedView.update_core(self.GuiNetwork.cores[core_num])
 
         self.GuiNetwork.update()
         self.GuiCoreExplodedView.update()
-        self.GuiCoreInfo.update()

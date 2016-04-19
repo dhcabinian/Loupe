@@ -25,47 +25,47 @@ class Link(QtGui.QWidget):
     # Orients Link direction and pixel placement
     def setup_grapics_points(self):
         if self.core_send.row == self.core_rec.row and self.core_send.col < self.core_rec.col:
-            self.link_dir = "SOUTH"
+            self.link_dir = "South"
             self.setup_graphics_link_attr()
         elif self.core_send.row == self.core_rec.row and self.core_send.col > self.core_rec.col:
-            self.link_dir = "NORTH"
+            self.link_dir = "North"
             self.setup_graphics_link_attr()
         elif self.core_send.row > self.core_rec.row and self.core_send.col == self.core_rec.col:
-            self.link_dir = "WEST"
+            self.link_dir = "West"
             self.setup_graphics_link_attr()
         elif self.core_send.row < self.core_rec.row and self.core_send.col == self.core_rec.col:
-            self.link_dir = "EAST"
+            self.link_dir = "East"
             self.setup_graphics_link_attr()
 
     def setup_graphics_link_attr(self):
         #Set Link Orientation
-        if self.link_dir is "NORTH" or self.link_dir is "SOUTH":
+        if self.link_dir is "North" or self.link_dir is "South":
             self.size.setHeight(drawAttr.LINK_LENGTH)
             self.size.setWidth(drawAttr.LINK_WIDTH)
-        elif self.link_dir is "EAST" or self.link_dir is "WEST":
+        elif self.link_dir is "East" or self.link_dir is "West":
             self.size.setHeight(drawAttr.LINK_WIDTH)
             self.size.setWidth(drawAttr.LINK_LENGTH)
 
         #Set Link Position
         link_gen_xoffset = None
         link_gen_yoffset = None
-        if self.link_dir is "EAST" or self.link_dir is "SOUTH":
+        if self.link_dir is "East" or self.link_dir is "South":
             link_gen_xoffset = self.core_send.row * drawAttr.CORE_SIZE + self.core_send.row * drawAttr.LINK_LENGTH
             link_gen_yoffset = self.core_send.col * drawAttr.CORE_SIZE + self.core_send.col * drawAttr.LINK_LENGTH
-        elif self.link_dir is "NORTH" or self.link_dir is "WEST":
+        elif self.link_dir is "North" or self.link_dir is "West":
             link_gen_xoffset = self.core_rec.row * drawAttr.CORE_SIZE + self.core_rec.row * drawAttr.LINK_LENGTH
             link_gen_yoffset = self.core_rec.col * drawAttr.CORE_SIZE + self.core_rec.col * drawAttr.LINK_LENGTH
 
-        if self.link_dir is "NORTH":
+        if self.link_dir is "North":
             link_gen_xoffset += drawAttr.CORE_SIZE / 2
             link_gen_yoffset += drawAttr.CORE_SIZE
-        elif self.link_dir is "EAST":
+        elif self.link_dir is "East":
             link_gen_xoffset += drawAttr.CORE_SIZE
             link_gen_yoffset += drawAttr.CORE_SIZE / 2
-        elif self.link_dir is "SOUTH":
+        elif self.link_dir is "South":
             link_gen_xoffset += drawAttr.CORE_SIZE / 2 - drawAttr.LINK_WIDTH
             link_gen_yoffset += drawAttr.CORE_SIZE
-        elif self.link_dir is "WEST":
+        elif self.link_dir is "West":
             link_gen_xoffset += drawAttr.CORE_SIZE
             link_gen_yoffset += drawAttr.CORE_SIZE / 2 - drawAttr.LINK_WIDTH
 
