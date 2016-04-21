@@ -16,8 +16,8 @@ class CoreExploded(QtGui.QWidget):
         self.core_id = None
         self.buffers = []
         # # Row and Column
-        self.row = None
-        self.col = None
+        self.draw_row = None
+        self.draw_col = None
         # Graphics Options
         self.size = QtCore.QSizeF(drawAttr.CORE_SIZE_EXP, drawAttr.CORE_SIZE_EXP)
         self.setMinimumSize(drawAttr.CORE_SIZE_EXP, drawAttr.CORE_SIZE_EXP)
@@ -34,8 +34,8 @@ class CoreExploded(QtGui.QWidget):
         self.core_id = core_in.core_id
         self.buffers = []
         # Row and Column
-        self.row = core_in.row
-        self.col = core_in.col
+        self.draw_row = core_in.draw_row
+        self.draw_col = core_in.draw_col
         # Graphics Options
         self.text_id = str(self.core_id)
         self.create_buffers()
@@ -54,13 +54,13 @@ class CoreExploded(QtGui.QWidget):
 
     def create_buffers(self):
         # Create Buffers
-        if self.col + 1 < networkAttr.CORE_COLS:
+        if self.draw_col + 1 < networkAttr.CORE_COLS:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "South", 1))
-        if self.col - 1 >= 0:
+        if self.draw_col - 1 >= 0:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "North", 1))
-        if self.row + 1 < networkAttr.CORE_ROWS:
+        if self.draw_row + 1 < networkAttr.CORE_ROWS:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "East", 1))
-        if self.row - 1 >= 0:
+        if self.draw_row - 1 >= 0:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "West", 1))
         self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "Core", 1))
 

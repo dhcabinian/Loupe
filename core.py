@@ -12,14 +12,16 @@ class Core(QtGui.QWidget):
         # Core Information
         self.core_id = core_id
         self.buffers = []
-        self.row = core_id % networkAttr.CORE_COLS
-        self.col = math.floor(core_id / networkAttr.CORE_COLS)
+        self.draw_row = core_id % networkAttr.CORE_COLS
+        self.draw_col = math.floor(core_id / networkAttr.CORE_COLS)
+        self.row = None
+        self.col = None
         # Graphics Options
         self.size = QtCore.QSizeF(drawAttr.CORE_SIZE, drawAttr.CORE_SIZE)
         self.setMinimumSize(drawAttr.CORE_SIZE, drawAttr.CORE_SIZE)
         # Pixel positions
-        self.top_left_corner = QtCore.QPointF(self.row * drawAttr.CORE_SIZE + self.row * drawAttr.LINK_LENGTH,
-                                              self.col * drawAttr.CORE_SIZE + self.col * drawAttr.LINK_LENGTH)
+        self.top_left_corner = QtCore.QPointF(self.draw_row * drawAttr.CORE_SIZE + self.draw_row * drawAttr.LINK_LENGTH,
+                                              self.draw_col * drawAttr.CORE_SIZE + self.draw_col * drawAttr.LINK_LENGTH)
         # Core Rectangle Object
         self.rect = QtCore.QRectF(self.top_left_corner, self.size)
         self.text_id = str(self.core_id)
@@ -34,13 +36,13 @@ class Core(QtGui.QWidget):
 
     def create_buffers(self):
         # Create Buffers
-        if self.col + 1 < networkAttr.CORE_COLS:
+        if self.draw_col + 1 < networkAttr.CORE_COLS:
             self.buffers.append(Buffer(self.core_id, self.top_left_corner, "South"))
-        if self.col - 1 >= 0:
+        if self.draw_col - 1 >= 0:
             self.buffers.append(Buffer(self.core_id, self.top_left_corner, "North"))
-        if self.row + 1 < networkAttr.CORE_ROWS:
+        if self.draw_row + 1 < networkAttr.CORE_ROWS:
             self.buffers.append(Buffer(self.core_id, self.top_left_corner, "East"))
-        if self.row - 1 >= 0:
+        if self.draw_row - 1 >= 0:
             self.buffers.append(Buffer(self.core_id, self.top_left_corner, "West"))
         self.buffers.append(Buffer(self.core_id, self.top_left_corner, "Core"))
 
@@ -60,3 +62,29 @@ class Core(QtGui.QWidget):
                 if flit.in_dir == buf.link_dir:
                     flits_per_buffer.append(flit)
             buf.update_buffer(flits_per_buffer)
+
+    def set_core_id(self, core_id):
+        self.core_id = core_id
+        self.text_id = str(self.core_id)
+        self.col = core_id % networkAttr.CORE_COLS
+        self.row = math.floor(core_id / networkAttr.CORE_COLS)
+
+    def __str__(self):
+        string = "[Core::"
+        string += " Id:" + str(self.core_id)
+        string += " Row:" + str(self.row)
+        string += " Col:" + str(self.col)
+        string += " Draw_Row:" + str(self.draw_row)
+        string += " Draw_Col:" + str(self.draw_col)
+        string += "\n\r"
+        return string
+
+    def __repr__(self):
+        string = "[Core::"
+        string += " Id:" + str(self.core_id)
+        string += " Row:" + str(self.row)
+        string += " Col:" + str(self.col)
+        string += " Draw_Row:" + str(self.draw_row)
+        string += " Draw_Col:" + str(self.draw_col)
+        string += "\n\r"
+        return string

@@ -121,7 +121,7 @@ class Buffer(QtGui.QWidget):
             self.setup_text_ids()
 
         else:
-            # create single row of VCs
+            # create single draw_row of VCs
             length = math.floor(drawAttr.CORE_SIZE / (networkAttr.CORE_VCS + 2))
             self.size.setHeight(length)
             self.size.setWidth(length)
@@ -168,7 +168,7 @@ class Buffer(QtGui.QWidget):
         for index, VC in enumerate(self.rects):
             painter.drawRect(VC)
             for flit in self.updated_buffer_flits:
-                print(flit)
+                #print(flit)
                 painter.fillRect(self.rects[flit.vc], flit.color)
             painter.drawText(self.buffer_vc_ids_text_pos[index], self.buffer_vc_Ids_text[index])
 
