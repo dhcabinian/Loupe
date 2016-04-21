@@ -1,11 +1,12 @@
 import math
-from PyQt4 import QtCore
+
+from PyQt4 import QtCore, QtGui
 from networkAttr import networkAttr
 from drawAttr import drawAttr
 
 
 # Buffer Implementation
-class Buffer(object):
+class Buffer(QtGui.QWidget):
     # static variables
     ROW_DIV = 4
     # Offsets give the midpoint of each edge of core rectangle
@@ -31,6 +32,7 @@ class Buffer(object):
         self.top_left_corners = []
         # Buffer Rectangles List
         self.rects = []
+        self.updated_buffer_flits = []
         # Buffer Labels
         self.buffer_vc_Ids_text = []
         self.buffer_vc_ids_text_pos = []
@@ -165,6 +167,9 @@ class Buffer(object):
     def draw_buffer(self, painter):
         for index, VC in enumerate(self.rects):
             painter.drawRect(VC)
+            for flit in self.updated_buffer_flits:
+                print(flit)
+                painter.fillRect(self.rects[flit.vc], flit.color)
             painter.drawText(self.buffer_vc_ids_text_pos[index], self.buffer_vc_Ids_text[index])
 
     @staticmethod
@@ -185,5 +190,5 @@ class Buffer(object):
         string += "Flit Information would go here:"
         return string
 
-    def update_buffer(self):
-        pass
+    def update_buffer(self, updated_buffer_flits):
+        self.updated_buffer_flits = updated_buffer_flits

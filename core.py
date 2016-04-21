@@ -53,6 +53,10 @@ class Core(QtGui.QWidget):
     def get_buffers(self):
         return self.buffers
 
-    def update_core(self):
+    def update_core(self, updated_router_flits):
         for buf in self.buffers:
-            buf.update_buffer()
+            flits_per_buffer = []
+            for flit in updated_router_flits:
+                if flit.in_dir == buf.link_dir:
+                    flits_per_buffer.append(flit)
+            buf.update_buffer(flits_per_buffer)

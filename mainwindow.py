@@ -5,7 +5,7 @@ from drawAttr import drawAttr
 from CoreExploded import CoreExploded
 from BuffInfo import BuffInfo
 from generateGarnet import GuiGenerateGarnet
-#from parser import Parser
+from traceParser import traceParser
 import sys
 import threading
 #import time
@@ -20,26 +20,15 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiGarnet = None
         self.timer = None
         self.autoCycle = False
-        #self.parser = Parser()
+        self.trace_parser = traceParser()
         self.setup_main_window()
-        self.setup_cycle()
-        self.setup_network()
-        self.setup_auto()
-        self.setup_manual()
-        self.setup_vn()
-        self.setup_close_core()
-        self.setup_buffer()
-        self.setup_buffer_tables()
+        self.setup_layouts()
         self.setup_menu_bar()
         self.setup_status_bar()
+
         QtCore.QMetaObject.connectSlotsByName(self)
 
-    def setup_main_window(self):
-        # Main Layout
-        self.setObjectName("GuiMainWindow")
-        self.setWindowTitle("Loupe")
-        self.setWindowIcon(QtGui.QIcon('Loupe_icon.png'))
-        self.resize(1260, 960)
+    def setup_layouts(self):
         self.GuiWindowInternal = QtGui.QWidget(self)
         self.GuiWindowInternal.setObjectName("GuiWindowInternal")
         self.horizontalLayout = QtGui.QHBoxLayout(self.GuiWindowInternal)
@@ -49,6 +38,33 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiFullNetworkLayout.setObjectName("GuiFullNetworkLayout")
         self.GuiCycleProgressLayout = QtGui.QHBoxLayout()
         self.GuiCycleProgressLayout.setObjectName("GuiCycleProgressLayout")
+        self.GuiFullNetworkLayout.addLayout(self.GuiCycleProgressLayout)
+
+        self.horizontalLayout.addLayout(self.GuiFullNetworkLayout)
+
+        # Side Bar Layout
+        self.GuiSideBarMainLayout = QtGui.QVBoxLayout()
+        self.GuiSideBarMainLayout.setObjectName("GuiSideBarMainLayout")
+
+        self.GuiAutoCycleLayout = QtGui.QHBoxLayout()
+        self.GuiAutoCycleLayout.setObjectName("GuiAutoCycleLayout")
+
+        self.GuiSideBarMainLayout.addLayout(self.GuiAutoCycleLayout)
+
+        self.GuiManualCycleLayout = QtGui.QHBoxLayout()
+        self.GuiManualCycleLayout.setObjectName("GuiManualCycleLayout")
+
+        self.GuiSideBarMainLayout.addLayout(self.GuiManualCycleLayout)
+
+        self.horizontalLayout.addLayout(self.GuiSideBarMainLayout)
+        self.setCentralWidget(self.GuiWindowInternal)
+
+    def setup_main_window(self):
+        # Main Layout
+        self.setObjectName("GuiMainWindow")
+        self.setWindowTitle("Loupe")
+        self.setWindowIcon(QtGui.QIcon('Loupe_icon.png'))
+        self.resize(1260, 960)
 
     def setup_cycle(self):
         # LCD Cycle Counter
@@ -64,21 +80,13 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiCycleProgressBar.setObjectName("GuiCycleProgressBar")
         self.GuiCycleProgressLayout.addWidget(self.GuiCycleProgressBar)
 
-        self.GuiFullNetworkLayout.addLayout(self.GuiCycleProgressLayout)
-
-    def setup_network(self):
+    def setup_network(self, net_info):
         #Network
-        self.GuiNetwork = Network(self.GuiWindowInternal, "Mesh", 9, 3, 8, 5000)
+        self.GuiNetwork = Network(self.GuiWindowInternal, "Mesh", net_info[0], net_info[1], net_info[2], net_info[4])
         network_size = self.setup_calc_network_size()
         self.GuiNetwork.setMinimumSize(network_size)
         self.GuiNetwork.setObjectName("GuiNetworkFrame")
         self.GuiFullNetworkLayout.addWidget(self.GuiNetwork)
-        self.horizontalLayout.addLayout(self.GuiFullNetworkLayout)
-
-
-        #Side Bar Layout
-        self.GuiSideBarMainLayout = QtGui.QVBoxLayout()
-        self.GuiSideBarMainLayout.setObjectName("GuiSideBarMainLayout")
 
     def setup_auto(self):
         #Auto Cycle Label
@@ -87,8 +95,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiAutoCycleLabel.setObjectName("GuiAutoCycleLabel")
         self.GuiSideBarMainLayout.addWidget(self.GuiAutoCycleLabel)
         self.GuiAutoCycleLabel.setText("Animation/Auto Cycle")
-        self.GuiAutoCycleLayout = QtGui.QHBoxLayout()
-        self.GuiAutoCycleLayout.setObjectName("GuiAutoCycleLayout")
+
         #Auto Cycle Text Entry
         self.GuiAutoCycleCycleEntry = QtGui.QLineEdit(self.GuiWindowInternal)
         self.GuiAutoCycleCycleEntry.setMaximumSize(QtCore.QSize(100, 16777215))
@@ -108,8 +115,6 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStop)
         self.GuiAutoCycleStop.setText("Stop")
 
-        self.GuiSideBarMainLayout.addLayout(self.GuiAutoCycleLayout)
-
     def setup_manual(self):
         #Manual Cycle Label
         self.GuiManualCycleLabel = QtGui.QLabel(self.GuiWindowInternal)
@@ -118,8 +123,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiSideBarMainLayout.addWidget(self.GuiManualCycleLabel)
         self.GuiManualCycleLabel.setText("Manual Cycle")
 
-        self.GuiManualCycleLayout = QtGui.QHBoxLayout()
-        self.GuiManualCycleLayout.setObjectName("GuiManualCycleLayout")
+
         # Manual Cycle Previous PB
         self.GuiPreviousCyclePb = QtGui.QPushButton(self.GuiWindowInternal)
         self.GuiPreviousCyclePb.setObjectName("GuiPreviousCyclePb")
@@ -133,9 +137,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiManualCycleLayout.addWidget(self.GuiNextCyclePb)
         self.GuiNextCyclePb.setText("Next Cycle")
 
-        self.GuiSideBarMainLayout.addLayout(self.GuiManualCycleLayout)
-
-    def setup_vn(self):
+    def setup_vn(self, net_info):
         #VN Select Label
         self.GuiVirtualNetworkSelectLabel = QtGui.QLabel(self.GuiWindowInternal)
         self.GuiVirtualNetworkSelectLabel.setAlignment(QtCore.Qt.AlignCenter)
@@ -148,7 +150,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiVNSelectCombo.setObjectName("GuiVNSelectCombo")
         self.GuiVNSelectCombo.activated.connect(self.act_vn_select)
         self.GuiSideBarMainLayout.addWidget(self.GuiVNSelectCombo)
-        self.setup_vn_selector(5)
+        self.setup_vn_selector(net_info[3])
 
     def setup_close_core(self):
         #Close Up Core LAbel
@@ -212,8 +214,6 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.BuffInfo.setup_vc_tables(self.GuiVCTopTable, "Top")
         self.BuffInfo.setup_vc_tables(self.GuiVCBottomTable, "Bottom")
         self.BuffInfo.setup_both_tables()
-        self.horizontalLayout.addLayout(self.GuiSideBarMainLayout)
-        self.setCentralWidget(self.GuiWindowInternal)
 
     def setup_menu_bar(self):
         # Menu Bar
@@ -309,6 +309,29 @@ class GuiMainWindow(QtGui.QMainWindow):
             text = buf.link_dir.title() + " Buffer"
             self.GuiBufferSelectCombo.setItemText(index, text)
 
+    # Update Gui Methods #
+
+    def inital_setup(self):
+        net_info = self.trace_parser.get_network_info()
+        self.setup_cycle()
+        self.setup_network(net_info)
+        self.setup_auto()
+        self.setup_manual()
+        self.setup_vn(net_info)
+        self.setup_close_core()
+        self.setup_buffer()
+        self.setup_buffer_tables()
+
+
+
+    def update_gui(self):
+        self.GuiNetwork.update_network()
+        core_num = self.GuiCoreSelectorCombo.currentIndex()
+        self.GuiCoreExplodedView.update_core(self.GuiNetwork.cores[core_num])
+
+        self.GuiNetwork.update()
+        self.GuiCoreExplodedView.update()
+
     # Action Methods
 
     # # Cycle Push Buttons # #
@@ -343,14 +366,21 @@ class GuiMainWindow(QtGui.QMainWindow):
         if cycle_num is None:
             pass
         else:
+            updated_router_flits, updated_link_flits = self.trace_parser.get_cycle(cycle_num)
             self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
             self.GuiCycleCounter.display(cycle_num)
+            self.GuiNetwork.update_network()
 
     def act_next_cycle(self):
-        print("next cycle")
         cycle_num = self.GuiNetwork.next_cycle()
-        self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
-        self.GuiCycleCounter.display(cycle_num)
+        if cycle_num is None:
+            pass
+        else:
+            print("next cycle" + str(cycle_num))
+            updated_router_flits, updated_link_flits = self.trace_parser.get_cycle(cycle_num)
+            self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
+            self.GuiCycleCounter.display(cycle_num)
+            self.GuiNetwork.update_network(updated_router_flits, updated_link_flits)
 
     def act_vn_select(self):
         print(self.GuiVNSelectCombo.currentText())
@@ -378,8 +408,10 @@ class GuiMainWindow(QtGui.QMainWindow):
         dialog = QtGui.QFileDialog()
         name = QtGui.QFileDialog.getOpenFileName(dialog, 'Open File')
         if name.endswith('.csv'):
-            pass
-            #self.parser.open_trace(name)
+            self.file_loading_message()
+            self.trace_parser.open_trace(name)
+            self.file_loaded_message()
+            self.inital_setup()
         else:
             self.file_open_error_message()
 
@@ -388,6 +420,20 @@ class GuiMainWindow(QtGui.QMainWindow):
         message.setWindowTitle("Error opening file")
         message.setText("File selected must be a .csv")
         message.setIcon(QtGui.QMessageBox.Warning)
+        message.exec_()
+
+    def file_loading_message(self):
+        message = QtGui.QMessageBox()
+        message.setWindowTitle("Loading Trace....")
+        message.setText("Please wait a moment while indexing of the trace occurs")
+        message.setIcon(QtGui.QMessageBox.Information)
+        message.exec_()
+
+    def file_loaded_message(self):
+        message = QtGui.QMessageBox()
+        message.setWindowTitle("Trace Loaded!")
+        message.setText("Trace was succesfully loaded!")
+        message.setIcon(QtGui.QMessageBox.Information)
         message.exec_()
 
     # # Garnet Methods # #
@@ -436,12 +482,3 @@ class GuiMainWindow(QtGui.QMainWindow):
         message.setIcon(QtGui.QMessageBox.Warning)
         message.exec_()
 
-    # Update Gui Methods #
-
-    def update_gui(self):
-        self.GuiNetwork.update_network()
-        core_num = self.GuiCoreSelectorCombo.currentIndex()
-        self.GuiCoreExplodedView.update_core(self.GuiNetwork.cores[core_num])
-
-        self.GuiNetwork.update()
-        self.GuiCoreExplodedView.update()

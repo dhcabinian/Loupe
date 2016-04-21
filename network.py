@@ -57,10 +57,7 @@ class Network(QtGui.QWidget):
 
     def paintEvent(self, event):
         qp = QtGui.QPainter()
-
         qp.begin(self)
-        # qp.setWindow(0, -21, 750, 750)
-        # qp.translate(0, 21)
         self.draw_network(qp)
         qp.end()
 
@@ -87,9 +84,18 @@ class Network(QtGui.QWidget):
             Network.CYCLE_NUMBER = int(cycle_num)
         return Network.CYCLE_NUMBER
 
-    def update_network(self):
+    def update_network(self, updated_router_flits, updated_link_flits):
         for core in self.cores:
-            core.update_core()
+            flits_per_router = []
+            for flit in updated_router_flits:
+                if flit.router == core.core_id:
+                    flits_per_router.append(flit)
+            core.update_core(flits_per_router)
         for link in self.links:
-            link.update_link()
+            flits_per_link = []
+            for flit in updated_link_flits:
+                if flit.link_id == link.link_id:
+                    print("Link Matched!")
+                    flits_per_link.append(flit)
+            link.update_link(flits_per_link)
         self.update()

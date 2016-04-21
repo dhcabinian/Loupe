@@ -1,6 +1,6 @@
 from PyQt4 import QtCore, QtGui
 from drawAttr import drawAttr
-
+from networkAttr import networkAttr
 
 class Link(QtGui.QWidget):
     def __init__(self, core_send, core_rec):
@@ -8,10 +8,11 @@ class Link(QtGui.QWidget):
         # Link Information
         self.core_send = core_send
         self.core_rec = core_rec
+        self.link_id = None
         # String indicating link direction
         self.link_dir = ""
         # Flit in Link
-        self.current_flit = None
+        self.updated_link_flits = []
         # Graphics Size in Pixels
         self.size = QtCore.QSizeF()
         # Pixel Position
@@ -21,6 +22,7 @@ class Link(QtGui.QWidget):
         self.setMinimumSize(self.size.width(), self.size.height())
         # Link Rectangle Object
         self.rect = QtCore.QRectF(self.top_left_corner, self.size)
+        self.set_link_id()
 
     # Orients Link direction and pixel placement
     def setup_grapics_points(self):
@@ -75,5 +77,32 @@ class Link(QtGui.QWidget):
     def draw_link(self, painter):
         painter.drawRect(self.rect)
 
-    def update_link(self):
-        pass
+    def update_link(self, updated_link_flits):
+        self.updated_link_flits = updated_link_flits
+
+    def set_link_id(self):
+        #forumla for number of horizontal links in system
+        #   (cols - 1)*num_of_rows
+        #formula for number of vertical links in system
+        #   (rows - 1)*num_of_cols
+        #formula for number of horizontal links up to me
+        # (my_row) * (cols - 1) +
+        #formula for my link number
+        # num_cores + (
+        link_id = 2*networkAttr.CORE_CORES
+        row = self.core_send.row
+        col = self.core_send.col
+        if self.link_dir is "East":
+            link_id += row * (networkAttr.CORE_COLS - 1) + col
+        elif self.link_dir is "West":
+            link_id += row * (networkAttr.CORE_COLS - 1) + col - 1
+        if self.link_dir is "North":
+            link_id += (networkAttr.CORE_COLS - 1) * networkAttr.CORE_ROWS
+            link_id += row * networkAttr.CORE_COLS + col - networkAttr.CORE_COLS
+        elif self.link_dir is "South":
+            link_id += (networkAttr.CORE_COLS - 1) * networkAttr.CORE_ROWS
+            link_id += row * networkAttr.CORE_COLS + col
+        self.link_id = link_id
+
+    def get_link_id(self):
+        return self.link_id
