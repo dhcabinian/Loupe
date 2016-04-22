@@ -22,6 +22,7 @@ class Buffer(QtGui.QWidget):
     def __init__(self, core_id, core_top_left_corner, direction, expanded=0):
         super(Buffer, self).__init__()
         #Offset changes for close view core
+        self.expanded = expanded
         if expanded == 1:
             self.set_to_expanded()
         # Buffer Information
@@ -137,7 +138,11 @@ class Buffer(QtGui.QWidget):
     #Sets buffer width and heigh based on total core size and number of VCs
     def set_buffer_size(self):
         # create rows of 4 VCs
-        length = math.floor(drawAttr.CORE_SIZE / (
+        if self.expanded == 1:
+            size = drawAttr.CORE_SIZE_EXP
+        else:
+            size = drawAttr.CORE_SIZE
+        length = math.floor(size / (
             Buffer.ROW_DIV + 2 * math.ceil(networkAttr.CORE_VCS / Buffer.ROW_DIV)))
         self.size.setHeight(length)
         self.size.setWidth(length)
@@ -181,9 +186,13 @@ class Buffer(QtGui.QWidget):
         for index, VC in enumerate(self.rects):
             painter.drawRect(VC)
             #Colors in VC buffers containing flits
-            for flit in self.flits:
-                painter.fillRect(self.rects[flit.vc], flit.color)
             painter.drawText(self.buffer_vc_ids_text_pos[index], self.buffer_vc_Ids_text[index])
+        for flit in self.flits:
+            painter.fillRect(self.rects[flit.vc], flit.color)
+            painter.setPen(flit.text_color)
+            painter.drawText(self.buffer_vc_ids_text_pos[flit.vc], self.buffer_vc_Ids_text[flit.vc])
+            # reset to black after
+            painter.setPen(QtGui.QColor(0, 0, 0, 255))
 
     @staticmethod
     def set_to_expanded():

@@ -126,16 +126,16 @@ class Network(QtGui.QWidget):
 
     def __str__(self):
         string = "[Network:: "
-        string += "Topology: " + self.topology + " "
-        string += "VCs: " + str(networkAttr.CORE_VCS) + " "
+        string += "Topology: " + self.topology + " | "
+        string += "VCs: " + str(networkAttr.CORE_VCS) + " | "
         string += "Total Cycles Simulated: " + str(networkAttr.NET_TOTCYCLES)
         string += "]"
         return string
 
     def __repr__(self):
         string = "[Network:: "
-        string += "Topology: " + self.topology + " "
-        string += "VCs: " + str(networkAttr.CORE_VCS) + " "
+        string += "Topology: " + self.topology + " | "
+        string += "VCs: " + str(networkAttr.CORE_VCS) + " | "
         string += "Total Cycles Simulated: " + str(networkAttr.NET_TOTCYCLES)
         string += "]"
         return string

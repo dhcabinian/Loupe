@@ -21,7 +21,9 @@ class Flit(QtGui.QWidget):
         self.dest = None
         self.enqueue_time = None
         self.color = QtGui.QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), 110)
+        self.text_color = None
         self.parse_trace(trace_row)
+        self.create_text_color()
 
     # Format for In Unit
     # [cycle, inunit, router_id, in_dir, [flit], outport]
@@ -81,10 +83,25 @@ class Flit(QtGui.QWidget):
     #Sets the flit color
     def set_flit_color(self, color):
         self.color = color
+        self.create_text_color()
 
     #Retreives the flit color
     def get_flit_color(self):
         return self.color
+
+    #Create text color using weighted algorithm
+    def create_text_color(self):
+        rgb = self.color.getRgb()
+        red = rgb[0]
+        green = rgb[1]
+        blue = rgb[2]
+        dark_or_light = ((red * 299) + (green * 587) + (blue * 114)) / 1000
+        if dark_or_light >= 128:
+            #Black Text
+            self.text_color = QtGui.QColor(0, 0, 0, 255)
+        else:
+            #White Text
+            self.text_color = QtGui.QColor(255, 255, 255, 255)
 
     def __str__(self):
         string = "[Flit::"

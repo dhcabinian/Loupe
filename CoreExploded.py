@@ -7,7 +7,8 @@ from buffer import Buffer
 class CoreExploded(QtGui.QWidget):
     CORE_EXP_X_OFFSET = 20
     CORE_EXP_Y_OFFSET = 20
-    CORE_ID_Y_OFFSET = 15
+    CORE_ID_Y_OFFSET = 35
+    CORE_ID_X_OFFSET = -3
 
     def __init__(self, parent_widget, core_in):
         super(CoreExploded, self).__init__()
@@ -55,6 +56,7 @@ class CoreExploded(QtGui.QWidget):
     def create_core_id_text(self):
         pos = self.rect.center()
         pos.setY(pos.y() + CoreExploded.CORE_ID_Y_OFFSET)
+        pos.setX(pos.x() + CoreExploded.CORE_ID_X_OFFSET)
         self.text_id_pos = pos
 
     #Creates buffers with the correct locations for the exploded core

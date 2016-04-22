@@ -6,5 +6,5 @@ if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     GuiMainWindow = GuiMainWindow()
-    GuiMainWindow.show()
+    #GuiMainWindow.show()
     sys.exit(app.exec_())

@@ -34,6 +34,7 @@ class Core(QtGui.QWidget):
     def create_core_id_text(self):
         pos = self.rect.center()
         pos.setY(pos.y() + 15)
+        pos.setX(pos.x() - 4)
         self.text_id_pos = pos
 
     #Creates Buffers based on location

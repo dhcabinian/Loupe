@@ -25,8 +25,11 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.setup_main_layout()
         self.setup_menu_bar()
         self.setup_status_bar()
-
+        self.show()
+        self.start_message()
         QtCore.QMetaObject.connectSlotsByName(self)
+
+
 
     def setup_main_window(self):
         # Main Layout
@@ -70,6 +73,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiGoTo500MenuAction.setObjectName("GuiGoTo500MenuAction")
         self.GuiGoTo500MenuAction.setText("Cycle 500")
         self.GuiGoToCycleMenuAction = QtGui.QAction(self)
+        self.GuiGoToCycleMenuAction.setShortcut("Ctrl+G")
         self.GuiGoToCycleMenuAction.triggered.connect(self.go_to_cycle_x)
         self.GuiGoToCycleMenuAction.setObjectName("GuiGoToCycleMenuAction")
         self.GuiGoToCycleMenuAction.setText("Cycle ...")
@@ -109,6 +113,14 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.statusbar = QtGui.QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
+
+    def start_message(self):
+        message = QtGui.QMessageBox()
+        message.setWindowTitle("Starting Loupe")
+        string = "To start visualization: open a valid trace file from the File menu"
+        message.setText(string)
+        message.setIcon(QtGui.QMessageBox.Information)
+        message.exec_()
 
     def inital_setup(self):
         net_info = self.trace_parser.get_network_info()
@@ -478,7 +490,7 @@ class GuiMainWindow(QtGui.QMainWindow):
     def file_loading_message(self):
         message = QtGui.QMessageBox()
         message.setWindowTitle("Loading Trace....")
-        message.setText("Please wait a moment while indexing of the trace occurs")
+        message.setText("Please wait a moment while indexing of the trace occurs. This may take a few seconds...")
         message.setIcon(QtGui.QMessageBox.Information)
         message.exec_()
 
