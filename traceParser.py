@@ -3,6 +3,7 @@ import itertools
 from flit import Flit
 from networkAttr import networkAttr
 
+
 class traceParser(object):
     def __init__(self):
         self.cycle_row_nums = dict()
@@ -30,18 +31,19 @@ class traceParser(object):
         updated_link_flits = []
         with open(self.csv_file_name, 'r') as f:
             if cycle_num in self.cycle_row_nums:
-                #find next cycle
+                # find next cycle
                 next_cycle = cycle_num + 1
                 while next_cycle not in self.cycle_row_nums:
                     next_cycle += 1
-                for row in itertools.islice(csv.reader(f), self.cycle_row_nums[cycle_num], self.cycle_row_nums[cycle_num + 1]):
+                for row in itertools.islice(csv.reader(f), self.cycle_row_nums[cycle_num],
+                                            self.cycle_row_nums[cycle_num + 1]):
                     insert_flit = Flit(row)
-                    #color assignment
+                    # color assignment
                     if insert_flit.id in self.flit_tracker:
                         insert_flit.set_flit_color(self.flit_tracker[insert_flit.id])
-                        #remove color entry if flit has entered the exit link
+                        # remove color entry if flit has entered the exit link
                         if insert_flit.location is "Link":
-                            if insert_flit.link_id >= networkAttr.CORE_CORES and insert_flit.link_id < networkAttr.CORE_CORES * 2:
+                            if networkAttr.CORE_CORES <= insert_flit.link_id < networkAttr.CORE_CORES * 2:
                                 self.flit_tracker.pop(insert_flit.id)
                     else:
                         self.flit_tracker[insert_flit.id] = insert_flit.get_flit_color()

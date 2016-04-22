@@ -32,7 +32,7 @@ class Buffer(QtGui.QWidget):
         self.top_left_corners = []
         # Buffer Rectangles List
         self.rects = []
-        self.updated_buffer_flits = []
+        self.flits = []
         # Buffer Labels
         self.buffer_vc_Ids_text = []
         self.buffer_vc_ids_text_pos = []
@@ -167,8 +167,7 @@ class Buffer(QtGui.QWidget):
     def draw_buffer(self, painter):
         for index, VC in enumerate(self.rects):
             painter.drawRect(VC)
-            for flit in self.updated_buffer_flits:
-                #print(flit)
+            for flit in self.flits:
                 painter.fillRect(self.rects[flit.vc], flit.color)
             painter.drawText(self.buffer_vc_ids_text_pos[index], self.buffer_vc_Ids_text[index])
 
@@ -180,6 +179,12 @@ class Buffer(QtGui.QWidget):
         Buffer.W_OFFSET = [0, drawAttr.CORE_SIZE_EXP / 2]
         Buffer.C_OFFSET = [drawAttr.CORE_SIZE_EXP / 2, drawAttr.CORE_SIZE_EXP / 2 - 15]
 
+    def update_buffer(self, updated_buffer_flits):
+        self.flits = updated_buffer_flits
+
+    def peek_flits(self):
+        return self.flits
+
     def __str__(self):
         string = "Buffer Direction:" + self.link_dir + "\n\r"
         string += "Flit Information would go here:"
@@ -190,5 +195,3 @@ class Buffer(QtGui.QWidget):
         string += "Flit Information would go here:"
         return string
 
-    def update_buffer(self, updated_buffer_flits):
-        self.updated_buffer_flits = updated_buffer_flits

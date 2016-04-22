@@ -33,8 +33,8 @@ class Network(QtGui.QWidget):
         for core in self.cores:
             core.set_core_id(new_core_id)
             new_core_id += 1
-            if (new_core_id % networkAttr.CORE_COLS == 0):
-                new_core_id = new_core_id - (2 * networkAttr.CORE_COLS)
+            if new_core_id % networkAttr.CORE_COLS == 0:
+                new_core_id -= 2 * networkAttr.CORE_COLS
         self.cores.sort(key=operator.attrgetter("core_id"), reverse=False)
 
     def create_links(self):
@@ -50,7 +50,8 @@ class Network(QtGui.QWidget):
             for row in range(networkAttr.CORE_ROWS):
                 if row + 1 < networkAttr.CORE_ROWS:
                     core_id = row * networkAttr.CORE_COLS + col
-                    self.links.append(duplexLink(self.cores[core_id], self.cores[core_id + networkAttr.CORE_COLS], "N/S"))
+                    self.links.append(
+                        duplexLink(self.cores[core_id], self.cores[core_id + networkAttr.CORE_COLS], "N/S"))
 
     def draw_network(self, painter):
         for core in self.cores:
@@ -102,3 +103,5 @@ class Network(QtGui.QWidget):
             duplex_link.update_duplex_link(flits_per_link)
         self.update()
 
+    def get_core(self, core_num):
+        return self.cores[core_num]

@@ -1,6 +1,8 @@
 # Flit Implementation
-from PyQt4 import QtGui, QtCore
 import random
+
+from PyQt4 import QtGui
+
 
 class Flit(QtGui.QWidget):
     def __init__(self, trace_row):
@@ -20,12 +22,13 @@ class Flit(QtGui.QWidget):
         self.enqueue_time = None
         self.color = QtGui.QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), 110)
         self.parse_trace(trace_row)
+        self.on_link = False
 
-    #Format for In Unit
-    #[cycle, inunit, router_id, in_dir, [flit], outport]
-    #Format for Link
-    #[cycle, link, link_id, , [flit], ,]
-    #Format for [flit]
+    # Format for In Unit
+    # [cycle, inunit, router_id, in_dir, [flit], outport]
+    # Format for Link
+    # [cycle, link, link_id, , [flit], ,]
+    # Format for [flit]
     # [flit, id, type, vnet, vc, src, dest, time]
 
     def parse_trace(self, row):
@@ -93,6 +96,14 @@ class Flit(QtGui.QWidget):
 
     def get_flit_color(self):
         return self.color
+
+    def get_on_link(self):
+        return self.on_link
+
+    def set_on_link(self):
+        self.on_link = True
+
+
     def __str__(self):
         string = "[Flit::"
         string += " Id:" + str(self.id)

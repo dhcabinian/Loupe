@@ -2,6 +2,7 @@ from PyQt4 import QtCore, QtGui
 from drawAttr import drawAttr
 from networkAttr import networkAttr
 
+
 class Link(QtGui.QWidget):
     def __init__(self, core_send, core_rec):
         super(Link, self).__init__()
@@ -42,7 +43,7 @@ class Link(QtGui.QWidget):
             self.setup_graphics_link_attr()
 
     def setup_graphics_link_attr(self):
-        #Set Link Orientation
+        # Set Link Orientation
         if self.link_dir is "North" or self.link_dir is "South":
             self.size.setHeight(drawAttr.LINK_LENGTH)
             self.size.setWidth(drawAttr.LINK_WIDTH)
@@ -50,7 +51,7 @@ class Link(QtGui.QWidget):
             self.size.setHeight(drawAttr.LINK_WIDTH)
             self.size.setWidth(drawAttr.LINK_LENGTH)
 
-        #Set Link Position
+        # Set Link Position
         link_gen_xoffset = None
         link_gen_yoffset = None
         if self.link_dir is "East" or self.link_dir is "South":
@@ -83,6 +84,12 @@ class Link(QtGui.QWidget):
         else:
             painter.fillRect(self.rect, self.link_flit[0].color)
 
+    def get_link_flit(self):
+        if self.link_flit is []:
+            return None
+        else:
+            return self.link_flit[0]
+
     def create_link_id_text(self):
         pos = self.rect.center()
         self.text_id_pos = pos
@@ -91,7 +98,7 @@ class Link(QtGui.QWidget):
         self.link_flit = updated_link_flit
 
     def set_link_id(self):
-        link_id = 2*networkAttr.CORE_CORES
+        link_id = 2 * networkAttr.CORE_CORES
         if self.link_dir is "East" or self.link_dir is "West":
             link_id += (min(self.core_send.core_id, self.core_rec.core_id) - self.core_send.row)
         if self.link_dir is "North" or self.link_dir is "South":

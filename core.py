@@ -61,6 +61,18 @@ class Core(QtGui.QWidget):
             for flit in updated_router_flits:
                 if flit.in_dir == buf.link_dir:
                     flits_per_buffer.append(flit)
+            for flit in buf.flits:
+                if flit.get_on_link() is True:
+                    pass
+                elif flit.dest == self.core_id:
+                    pass
+                elif flit.outport == "Core":
+                    pass
+                else:
+                    flits_per_buffer.append(flit)
+            print(self.core_id)
+            print (buf.link_dir)
+            print (flits_per_buffer)
             buf.update_buffer(flits_per_buffer)
 
     def set_core_id(self, core_id):
@@ -88,3 +100,9 @@ class Core(QtGui.QWidget):
         string += " Draw_Col:" + str(self.draw_col)
         string += "\n\r"
         return string
+
+    def get_buffer(self, direction):
+        for buffer in self.buffers:
+            if buffer.link_dir == direction:
+                return buffer
+        return None
