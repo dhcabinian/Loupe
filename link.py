@@ -2,7 +2,7 @@ from PyQt4 import QtCore, QtGui
 from drawAttr import drawAttr
 from networkAttr import networkAttr
 
-
+#Implements a single direction link
 class Link(QtGui.QWidget):
     def __init__(self, core_send, core_rec):
         super(Link, self).__init__()
@@ -25,7 +25,6 @@ class Link(QtGui.QWidget):
         self.rect = QtCore.QRectF(self.top_left_corner, self.size)
         self.text_id_pos = QtCore.QPointF()
         self.set_link_id()
-        self.create_link_id_text()
 
     # Orients Link direction and pixel placement
     def setup_grapics_points(self):
@@ -42,6 +41,7 @@ class Link(QtGui.QWidget):
             self.link_dir = "North"
             self.setup_graphics_link_attr()
 
+    # Sets link position based on link direction
     def setup_graphics_link_attr(self):
         # Set Link Orientation
         if self.link_dir is "North" or self.link_dir is "South":
@@ -50,7 +50,6 @@ class Link(QtGui.QWidget):
         elif self.link_dir is "East" or self.link_dir is "West":
             self.size.setHeight(drawAttr.LINK_WIDTH)
             self.size.setWidth(drawAttr.LINK_LENGTH)
-
         # Set Link Position
         link_gen_xoffset = None
         link_gen_yoffset = None
@@ -77,6 +76,8 @@ class Link(QtGui.QWidget):
         self.top_left_corner.setX(link_gen_xoffset)
         self.top_left_corner.setY(link_gen_yoffset)
 
+    #Draws the link
+    #Colors link based on flit
     def draw_link(self, painter):
         painter.drawRect(self.rect)
         if not self.link_flit:
@@ -84,19 +85,20 @@ class Link(QtGui.QWidget):
         else:
             painter.fillRect(self.rect, self.link_flit[0].color)
 
+    #Retreives the flit on the link if it exists
+    #Converts list to single flit
     def get_link_flit(self):
         if self.link_flit is []:
             return None
         else:
             return self.link_flit[0]
 
-    def create_link_id_text(self):
-        pos = self.rect.center()
-        self.text_id_pos = pos
-
+    #Updates the link with a flit parsed
     def update_link(self, updated_link_flit):
         self.link_flit = updated_link_flit
 
+    #Sets link id according to garnet specs
+    #Currently hardcoded to mesh topology
     def set_link_id(self):
         link_id = 2 * networkAttr.CORE_CORES
         if self.link_dir is "East" or self.link_dir is "West":
@@ -107,5 +109,6 @@ class Link(QtGui.QWidget):
             link_id += num_e_w_links + offset
         self.link_id = link_id
 
+    #Retreives link id
     def get_link_id(self):
         return self.link_id

@@ -7,7 +7,7 @@ from drawAttr import drawAttr
 
 # Buffer Implementation
 class Buffer(QtGui.QWidget):
-    # static variables
+    # Number of VC's per row division
     ROW_DIV = 4
     # Offsets give the midpoint of each edge of core rectangle
     N_OFFSET = [drawAttr.CORE_SIZE / 2, 0]
@@ -15,11 +15,13 @@ class Buffer(QtGui.QWidget):
     E_OFFSET = [drawAttr.CORE_SIZE, drawAttr.CORE_SIZE / 2]
     W_OFFSET = [0, drawAttr.CORE_SIZE / 2]
     C_OFFSET = [drawAttr.CORE_SIZE / 2, drawAttr.CORE_SIZE / 2 - 15]
+    #Text offset to place in middle of VC box
     VC_ID_X_OFFSET = 3
     VC_ID_Y_OFFSET = 5
 
     def __init__(self, core_id, core_top_left_corner, direction, expanded=0):
         super(Buffer, self).__init__()
+        #Offset changes for close view core
         if expanded == 1:
             self.set_to_expanded()
         # Buffer Information
@@ -39,9 +41,14 @@ class Buffer(QtGui.QWidget):
         # Setting up Graphics
         self.setup_grapics()
 
+    #Sets up the rectangles for each VC
+    #Calculates the top left corner for each VC
+    #Reorders final array of rectangles based on VC number
+    #Sets up VC text Ids
     def setup_grapics(self):
         if networkAttr.CORE_VCS / Buffer.ROW_DIV >= 1:
             self.set_buffer_size()
+            #Creates VC rectangles and positions
             for index, vc in enumerate(range(networkAttr.CORE_VCS)):
                 row_num = math.ceil(vc / Buffer.ROW_DIV)
                 # from perspective of center of core
@@ -117,15 +124,17 @@ class Buffer(QtGui.QWidget):
                         ypos += Buffer.C_OFFSET[1] - self.size.height() * row_num + self.size.height()
                 self.top_left_corners.append(QtCore.QPointF(xpos, ypos))
                 self.rects.append(QtCore.QRectF(self.top_left_corners[index], self.size))
+            #Reorders the rectangles based on VC Id
             self.reorder_buffer()
+            #Sets up VC text
             self.setup_text_ids()
-
         else:
             # create single draw_row of VCs
             length = math.floor(drawAttr.CORE_SIZE / (networkAttr.CORE_VCS + 2))
             self.size.setHeight(length)
             self.size.setWidth(length)
 
+    #Sets buffer width and heigh based on total core size and number of VCs
     def set_buffer_size(self):
         # create rows of 4 VCs
         length = math.floor(drawAttr.CORE_SIZE / (
@@ -133,6 +142,8 @@ class Buffer(QtGui.QWidget):
         self.size.setHeight(length)
         self.size.setWidth(length)
 
+    #Reorders the buffer based on the VC id
+    #Hard coded for row division of 4
     def reorder_buffer(self):
         # Sort Rects into actual VC ordering
         full_rows = math.floor(networkAttr.CORE_VCS / Buffer.ROW_DIV)
@@ -156,6 +167,7 @@ class Buffer(QtGui.QWidget):
             temp_rects.append(self.rects[full_rows * Buffer.ROW_DIV + 1])
         self.rects = temp_rects
 
+    #Sets Text Ids for Each VC buffer
     def setup_text_ids(self):
         for vc_id, rect in enumerate(self.rects):
             self.buffer_vc_Ids_text.append(str(vc_id))
@@ -164,9 +176,11 @@ class Buffer(QtGui.QWidget):
             pos.setY(pos.y() + Buffer.VC_ID_Y_OFFSET)
             self.buffer_vc_ids_text_pos.append(pos)
 
+    #Draws the Buffer
     def draw_buffer(self, painter):
         for index, VC in enumerate(self.rects):
             painter.drawRect(VC)
+            #Colors in VC buffers containing flits
             for flit in self.flits:
                 painter.fillRect(self.rects[flit.vc], flit.color)
             painter.drawText(self.buffer_vc_ids_text_pos[index], self.buffer_vc_Ids_text[index])
@@ -179,11 +193,9 @@ class Buffer(QtGui.QWidget):
         Buffer.W_OFFSET = [0, drawAttr.CORE_SIZE_EXP / 2]
         Buffer.C_OFFSET = [drawAttr.CORE_SIZE_EXP / 2, drawAttr.CORE_SIZE_EXP / 2 - 15]
 
+    #Updates buffer flits based on flits coming from parser
     def update_buffer(self, updated_buffer_flits):
         self.flits = updated_buffer_flits
-
-    def peek_flits(self):
-        return self.flits
 
     def __str__(self):
         string = "Buffer Direction:" + self.link_dir + "\n\r"

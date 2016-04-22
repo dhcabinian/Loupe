@@ -29,6 +29,7 @@ class CoreExploded(QtGui.QWidget):
         self.text_id_pos = QtCore.QPointF()
         self.update_core(core_in)
 
+    #Updates the core information based on the core select box
     def update_core(self, core_in):
         # Core Information
         self.core_id = core_in.core_id
@@ -43,19 +44,21 @@ class CoreExploded(QtGui.QWidget):
         for index, buf in enumerate(core_in.buffers):
             self.buffers[index].flits = buf.flits
 
+    #Draws the core and its buffers
     def draw_core(self, painter):
         painter.drawRect(self.rect)
         painter.drawText(self.text_id_pos, self.text_id)
         for buf in self.buffers:
             buf.draw_buffer(painter)
 
+    #Creates the core id text
     def create_core_id_text(self):
         pos = self.rect.center()
         pos.setY(pos.y() + CoreExploded.CORE_ID_Y_OFFSET)
         self.text_id_pos = pos
 
+    #Creates buffers with the correct locations for the exploded core
     def create_buffers(self):
-        # Create Buffers
         if self.draw_col + 1 < networkAttr.CORE_COLS:
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "South", 1))
         if self.draw_col - 1 >= 0:
@@ -66,11 +69,9 @@ class CoreExploded(QtGui.QWidget):
             self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "West", 1))
         self.buffers.append(Buffer(self.core_id, self.topLeftCorner, "Core", 1))
 
+    #Paints the core
     def paintEvent(self, event):
         painter = QtGui.QPainter()
         painter.begin(self)
         self.draw_core(painter)
         painter.end()
-
-    def update_core_exploded(self):
-        pass

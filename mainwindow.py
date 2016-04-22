@@ -156,6 +156,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiCycleCounter.setSegmentStyle(QtGui.QLCDNumber.Flat)
         self.GuiCycleCounter.setPalette(QtGui.QPalette(QtGui.QColor("Black")))
         self.GuiCycleCounter.setSegmentStyle(QtGui.QLCDNumber.Filled)
+        self.GuiCycleCounter.setStatusTip("Current network cycle")
         self.GuiCycleProgressLayout.addWidget(self.GuiCycleCounter)
 
     def setup_progress_bar_cycle(self):
@@ -163,6 +164,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiCycleProgressBar = QtGui.QProgressBar(self.GuiWindowInternal)
         self.GuiCycleProgressBar.setProperty("value", 0)
         self.GuiCycleProgressBar.setObjectName("GuiCycleProgressBar")
+        self.GuiCycleProgressBar.setStatusTip("Percentage progress through trace")
         self.GuiCycleProgressLayout.addWidget(self.GuiCycleProgressBar)
 
     def setup_network(self, net_info):
@@ -171,6 +173,8 @@ class GuiMainWindow(QtGui.QMainWindow):
         network_size = self.init_calc_network_size()
         self.GuiNetwork.setMinimumSize(network_size)
         self.GuiNetwork.setObjectName("GuiNetworkFrame")
+        string = str(self.GuiNetwork)
+        self.GuiNetwork.setStatusTip(string)
         self.GuiFullNetworkLayout.addWidget(self.GuiNetwork)
 
     def setup_sidebar_layout(self):
@@ -199,6 +203,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiAutoCycleCycleEntry.setMaximumSize(QtCore.QSize(100, 16777215))
         self.GuiAutoCycleCycleEntry.setText("")
         self.GuiAutoCycleCycleEntry.setObjectName("GuiAutoCycleCycleEntry")
+        self.GuiAutoCycleCycleEntry.setStatusTip("Enter the number of cycles to animate then press start")
         self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleCycleEntry)
 
     def setup_auto_cycle_start(self):
@@ -207,6 +212,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiAutoCycleStart.setObjectName("GuiAutoCycleStart")
         self.GuiAutoCycleStart.clicked.connect(self.act_start_cycle)
         self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStart)
+        self.GuiAutoCycleStart.setStatusTip("Start animation")
         self.GuiAutoCycleStart.setText("Start")
 
     def setup_auto_cycle_stop(self):
@@ -215,6 +221,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiAutoCycleStop.setObjectName("GuiAutoCycleStop")
         self.GuiAutoCycleStop.clicked.connect(self.act_stop_cycle)
         self.GuiAutoCycleLayout.addWidget(self.GuiAutoCycleStop)
+        self.GuiAutoCycleStop.setStatusTip("Stop Animation")
         self.GuiAutoCycleStop.setText("Stop")
 
     def setup_manual_cycle_label(self):
@@ -236,6 +243,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiPreviousCyclePb.setObjectName("GuiPreviousCyclePb")
         self.GuiPreviousCyclePb.clicked.connect(self.act_previous_cycle)
         self.GuiManualCycleLayout.addWidget(self.GuiPreviousCyclePb)
+        self.GuiPreviousCyclePb.setStatusTip("Returns to previous cycle state")
         self.GuiPreviousCyclePb.setText("Previous Cycle")
 
     def setup_manual_cycle_next(self):
@@ -244,6 +252,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiNextCyclePb.setObjectName("GuiNextCyclePb")
         self.GuiNextCyclePb.clicked.connect(self.act_next_cycle)
         self.GuiManualCycleLayout.addWidget(self.GuiNextCyclePb)
+        self.GuiNextCyclePb.setStatusTip("Increments to next cycle")
         self.GuiNextCyclePb.setText("Next Cycle")
 
     def setup_vn_select_label(self):
@@ -260,6 +269,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiVNSelectCombo.setObjectName("GuiVNSelectCombo")
         self.GuiVNSelectCombo.activated.connect(self.act_vn_select)
         self.GuiSideBarMainLayout.addWidget(self.GuiVNSelectCombo)
+        self.GuiVNSelectCombo.setStatusTip("Choose the virtual network to show")
         self.init_vn_select_box(net_info[3])
 
     def setup_close_core_label(self):
@@ -276,6 +286,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiCoreSelectorCombo.setObjectName("GuiCoreSelectorCombo")
         self.GuiCoreSelectorCombo.activated.connect(self.act_close_view_core)
         self.init_close_core_box(networkAttr.CORE_CORES)
+        self.GuiCoreSelectorCombo.setStatusTip("Select a core to have a close-up view")
         self.GuiSideBarMainLayout.addWidget(self.GuiCoreSelectorCombo)
 
     def setup_close_core_view(self):
@@ -299,6 +310,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiBufferSelectCombo.setObjectName("GuiBufferSelectCombo")
         self.GuiBufferSelectCombo.activated.connect(self.act_buffer_select)
         self.init_buffer_box(self.GuiNetwork.cores[self.GuiCoreSelectorCombo.currentIndex()])
+        self.GuiBufferSelectCombo.setStatusTip("Show buffer information for current close-view core")
         self.GuiSideBarMainLayout.addWidget(self.GuiBufferSelectCombo)
 
     def setup_buffer_tables(self):
@@ -362,7 +374,7 @@ class GuiMainWindow(QtGui.QMainWindow):
 
     def update_buffer_box(self, core):
         self.GuiBufferSelectCombo.clear()
-        for index, buf in enumerate(core.get_buffers()):
+        for index, buf in enumerate(core.buffers):
             self.GuiBufferSelectCombo.addItem("")
             text = buf.link_dir.title() + " Buffer"
             self.GuiBufferSelectCombo.setItemText(index, text)

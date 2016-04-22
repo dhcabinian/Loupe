@@ -4,6 +4,9 @@ from flit import Flit
 from networkAttr import networkAttr
 
 
+#Parser developed with garnet2.0 parser
+#Reads in CSV file for each cycle
+#Cycle counts larger than 5000 not recommended due to delay
 class traceParser(object):
     def __init__(self):
         self.cycle_row_nums = dict()
@@ -12,12 +15,14 @@ class traceParser(object):
         self.reader = None
         self.flit_tracker = dict()
 
+    #opens the trace
     def open_trace(self, csv_file_name):
         self.csv_file_name = csv_file_name
         self.csv = open(csv_file_name, 'r')
         self.reader = csv.reader(self.csv)
         self.preprocess()
 
+    #creates a dictionary with key = cycle number and value = row the cycle begins at
     def preprocess(self):
         for row_num, row in enumerate(self.reader):
             if 'GarnetNetwork' not in row[0]:
@@ -26,6 +31,8 @@ class traceParser(object):
                 else:
                     self.cycle_row_nums[int(row[0])] = row_num
 
+    #Returns cycle data based on cycle number using the dictionary lookup
+    #Returns empty list if cycle does not exist
     def get_cycle(self, cycle_num):
         updated_router_flits = []
         updated_link_flits = []
@@ -55,6 +62,7 @@ class traceParser(object):
                 return updated_router_flits, updated_link_flits
             return [], []
 
+    #Takes in first line from CSV and converts to network parameters
     def get_network_info(self):
         with open(self.csv_file_name, 'r') as f:
             reader = csv.reader(f)

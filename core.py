@@ -30,11 +30,14 @@ class Core(QtGui.QWidget):
         self.create_buffers()
         self.create_core_id_text()
 
+    #Creates the core ID text and location
     def create_core_id_text(self):
         pos = self.rect.center()
         pos.setY(pos.y() + 15)
         self.text_id_pos = pos
 
+    #Creates Buffers based on location
+    #Mesh dependent
     def create_buffers(self):
         # Create Buffers
         if self.draw_col + 1 < networkAttr.CORE_COLS:
@@ -47,32 +50,38 @@ class Core(QtGui.QWidget):
             self.buffers.append(Buffer(self.core_id, self.top_left_corner, "West"))
         self.buffers.append(Buffer(self.core_id, self.top_left_corner, "Core"))
 
+    #Draws the Core
     def draw_core(self, painter):
         painter.drawRect(self.rect)
         painter.drawText(self.text_id_pos, self.text_id)
         for buf in self.buffers:
             buf.draw_buffer(painter)
 
-    def get_buffers(self):
-        return self.buffers
-
+    #Updates the core using parsed data divided into location (router, link)
     def update_core(self, updated_router_flits, possible_link_flits):
         for buf in self.buffers:
             flits_per_buffer = []
             for flit in updated_router_flits:
                 if flit.in_dir == buf.link_dir:
                     flits_per_buffer.append(flit)
+            #checks to see if a buffer is driving a link
+            #keeps the flit in buffer to show the VC driving the link
             for link_flit in possible_link_flits:
                 for buf_flit in buf.flits:
                     if buf_flit.id == link_flit.id:
                         flits_per_buffer.append(buf_flit)
             buf.update_buffer(flits_per_buffer)
 
+    #Sets the core id based on the garnet id method rather than pyQT orientation
     def set_core_id(self, core_id):
         self.core_id = core_id
         self.text_id = str(self.core_id)
         self.col = core_id % networkAttr.CORE_COLS
         self.row = math.floor(core_id / networkAttr.CORE_COLS)
+
+    #Adds to the list of link_ids for use in driving buffer check
+    def add_link_id(self, link_id):
+        self.link_ids.append(link_id)
 
     def __str__(self):
         string = "[Core::"
@@ -94,11 +103,3 @@ class Core(QtGui.QWidget):
         string += "\n\r"
         return string
 
-    def get_buffer(self, direction):
-        for buffer in self.buffers:
-            if buffer.link_dir == direction:
-                return buffer
-        return None
-
-    def add_link_id(self, id):
-        self.link_ids.append(id)

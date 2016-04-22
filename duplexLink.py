@@ -15,6 +15,8 @@ class duplexLink(QtGui.QWidget):
         self.updated_link_flits = []
         self.create_links()
 
+    #Creates a bi directional link out of 2 links
+    #Allows for the consolidation of link ids
     def create_links(self):
         link1 = Link(self.core1, self.core2)
         self.links.append(link1)
@@ -25,6 +27,9 @@ class duplexLink(QtGui.QWidget):
             self.core1.add_link_id(self.link_id)
             self.core2.add_link_id(self.link_id)
 
+    #Updates the duplex link based on flits on the link from parser
+    #Routing dependent!
+    #Currently implements shortest hop count direction since garnet does not give output direction
     def update_duplex_link(self, updated_link_flits):
         self.updated_link_flits = updated_link_flits
         link1_flit = []
@@ -39,26 +44,20 @@ class duplexLink(QtGui.QWidget):
                 link1_flit.append(flit)
         self.links[0].update_link(link1_flit)
         self.links[1].update_link(link2_flit)
-        self.notify_flits_core()
 
+    #Draws the duplex link
     def draw_duplex_link(self, painter):
         for link in self.links:
             link.draw_link(painter)
 
-    def hop_count(self, src_core, dest_core):
+    #Calculates the remaining hops to a destination core from source core
+    #Used in deciding which direction flit is travelling on duplex link
+    #Would like to replace this with information from garnet
+    @staticmethod
+    def hop_count(src_core, dest_core):
         src_col = src_core % networkAttr.CORE_COLS
         src_row = math.floor(src_core / networkAttr.CORE_COLS)
         dest_col = dest_core % networkAttr.CORE_COLS
         dest_row = math.floor(dest_core / networkAttr.CORE_COLS)
         return abs(src_col - dest_col) + abs(src_row - dest_row)
 
-    def notify_flits_core(self):
-        for link in self.links:
-            if not link.link_flit:
-                pass
-            else:
-                send_core = link.core_send
-                for buffer in send_core.buffers:
-                    for flit in buffer.flits:
-                        if flit.id == link.get_link_flit().id:
-                            flit.set_on_link()
