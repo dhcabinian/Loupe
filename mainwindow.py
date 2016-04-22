@@ -20,6 +20,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.timer = None
         self.autoCycle = False
         self.trace_parser = traceParser()
+        self.cycle_iterator = None
         self.setup_main_window()
         self.setup_main_layout()
         self.setup_menu_bar()
@@ -389,27 +390,19 @@ class GuiMainWindow(QtGui.QMainWindow):
     # # Cycle Push Buttons # #
 
     def act_start_cycle(self):
-        self.autoCycle = True
-        if self.timer is None:
-            self.timer = threading.Timer(2.0, self.act_next_cycle)
-        while self.autoCycle:
-            # self.timer.
-            print("Start")
+        cycle_in = self.GuiAutoCycleCycleEntry.text()
+        print(cycle_in)
+        self.cycle_iterator = int(cycle_in)
+        self.auto_cycle_thread()
 
-    # def printit():
-    #     threading.Timer(5.0, printit).start()
-    #     print
-    #     "Hello, World!"
-    #
-    # printit()
+    def auto_cycle_thread(self):
+        if self.cycle_iterator > 0:
+            threading.Timer(1.0, self.auto_cycle_thread).start()
+            self.act_next_cycle()
+            self.cycle_iterator -= 1
 
     def act_stop_cycle(self):
-        self.autoCycle = False
-        if self.timer is None:
-            pass
-        else:
-            self.timer.cancel()
-        print("Stop")
+        self.cycle_iterator = -1
 
     def act_previous_cycle(self):
         print("previous cycle")
