@@ -22,6 +22,8 @@ class duplexLink(QtGui.QWidget):
         self.links.append(link2)
         if link1.get_link_id() is link2.get_link_id():
             self.link_id = link1.get_link_id()
+            self.core1.add_link_id(self.link_id)
+            self.core2.add_link_id(self.link_id)
 
     def update_duplex_link(self, updated_link_flits):
         self.updated_link_flits = updated_link_flits

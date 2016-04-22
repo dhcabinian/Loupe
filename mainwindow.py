@@ -10,9 +10,6 @@ import sys
 import threading
 
 
-# import time
-
-
 class GuiMainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(GuiMainWindow, self).__init__()

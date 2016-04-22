@@ -91,10 +91,14 @@ class Network(QtGui.QWidget):
     def update_network(self, updated_router_flits, updated_link_flits):
         for core in self.cores:
             flits_per_router = []
+            flits_possib_on_link = []
             for flit in updated_router_flits:
                 if flit.router == core.core_id:
                     flits_per_router.append(flit)
-            core.update_core(flits_per_router)
+            for flit in updated_link_flits:
+                if flit.link_id in core.link_ids:
+                    flits_possib_on_link.append(flit)
+            core.update_core(flits_per_router, flits_possib_on_link)
         for duplex_link in self.links:
             flits_per_link = []
             for flit in updated_link_flits:

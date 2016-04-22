@@ -12,6 +12,7 @@ class Core(QtGui.QWidget):
         # Core Information
         self.core_id = core_id
         self.buffers = []
+        self.link_ids = []
         self.draw_row = core_id % networkAttr.CORE_COLS
         self.draw_col = math.floor(core_id / networkAttr.CORE_COLS)
         self.row = None
@@ -55,21 +56,25 @@ class Core(QtGui.QWidget):
     def get_buffers(self):
         return self.buffers
 
-    def update_core(self, updated_router_flits):
+    def update_core(self, updated_router_flits, possible_link_flits):
         for buf in self.buffers:
             flits_per_buffer = []
             for flit in updated_router_flits:
                 if flit.in_dir == buf.link_dir:
                     flits_per_buffer.append(flit)
-            for flit in buf.flits:
-                if flit.get_on_link() is True:
-                    pass
-                elif flit.dest == self.core_id:
-                    pass
-                elif flit.outport == "Core":
-                    pass
-                else:
-                    flits_per_buffer.append(flit)
+            for link_flit in possible_link_flits:
+                for buf_flit in buf.flits:
+                    if buf_flit.id == link_flit.id:
+                        flits_per_buffer.append(buf_flit)
+            # for flit in buf.flits:
+            #     if flit.get_on_link() is True:
+            #         pass
+            #     elif flit.dest == self.core_id:
+            #         pass
+            #     elif flit.outport == "Core":
+            #         pass
+            #     else:
+            #         flits_per_buffer.append(flit)
             print(self.core_id)
             print (buf.link_dir)
             print (flits_per_buffer)
@@ -106,3 +111,6 @@ class Core(QtGui.QWidget):
             if buffer.link_dir == direction:
                 return buffer
         return None
+
+    def add_link_id(self, id):
+        self.link_ids.append(id)
