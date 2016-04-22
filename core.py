@@ -66,18 +66,6 @@ class Core(QtGui.QWidget):
                 for buf_flit in buf.flits:
                     if buf_flit.id == link_flit.id:
                         flits_per_buffer.append(buf_flit)
-            # for flit in buf.flits:
-            #     if flit.get_on_link() is True:
-            #         pass
-            #     elif flit.dest == self.core_id:
-            #         pass
-            #     elif flit.outport == "Core":
-            #         pass
-            #     else:
-            #         flits_per_buffer.append(flit)
-            print(self.core_id)
-            print (buf.link_dir)
-            print (flits_per_buffer)
             buf.update_buffer(flits_per_buffer)
 
     def set_core_id(self, core_id):

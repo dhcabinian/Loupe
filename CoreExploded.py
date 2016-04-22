@@ -40,6 +40,8 @@ class CoreExploded(QtGui.QWidget):
         self.text_id = str(self.core_id)
         self.create_buffers()
         self.create_core_id_text()
+        for index, buf in enumerate(core_in.buffers):
+            self.buffers[index].flits = buf.flits
 
     def draw_core(self, painter):
         painter.drawRect(self.rect)

@@ -348,19 +348,28 @@ class GuiMainWindow(QtGui.QMainWindow):
             self.GuiVNSelectCombo.setItemText(index, vn_select_text)
 
     def init_buffer_box(self, core):
+        self.update_buffer_box(core)
+
+    # Update Gui Methods #
+    def update_tables(self):
+        # Get correct buffer info
+        vn = self.GuiVNSelectCombo.currentIndex()
+        core = self.GuiNetwork.cores[self.GuiCoreSelectorCombo.currentIndex()]
+        buffer = self.GuiBufferSelectCombo.currentIndex()
+        if buffer is not None:
+            self.BuffInfo.update_tables(vn, core, buffer)
+
+    def update_buffer_box(self, core):
         self.GuiBufferSelectCombo.clear()
         for index, buf in enumerate(core.get_buffers()):
             self.GuiBufferSelectCombo.addItem("")
             text = buf.link_dir.title() + " Buffer"
             self.GuiBufferSelectCombo.setItemText(index, text)
 
-    # Update Gui Methods #
-    def update_tables(self):
-        # Get correct buffer info
-        core = self.GuiNetwork.get_core(self.GuiCoreSelectorCombo.currentIndex())
-        buffer = core.get_buffer(self.GuiBufferSelectCombo.currentText().split()[0])
-        if buffer is not None:
-            self.BuffInfo.update_tables(buffer)
+    def update_close_core_view(self):
+        core = self.GuiNetwork.cores[self.GuiCoreSelectorCombo.currentIndex()]
+        self.GuiCoreExplodedView.update_core(core)
+        self.GuiCoreExplodedView.update()
 
     # # Updates the following: # #
     # # Cycle Progress Bar
@@ -372,6 +381,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
         self.GuiCycleCounter.display(cycle_num)
         self.GuiNetwork.update_network(updated_router_flits, updated_link_flits)
+        self.update_close_core_view()
         self.update_tables()
 
     # Action Methods
@@ -419,18 +429,21 @@ class GuiMainWindow(QtGui.QMainWindow):
 
     def act_vn_select(self):
         print(self.GuiVNSelectCombo.currentText())
+        self.update_tables()
 
     def act_close_view_core(self):
         core_num = self.GuiCoreSelectorCombo.currentIndex()
         print(core_num)
+        self.update_buffer_box(self.GuiNetwork.cores[core_num])
         self.GuiCoreExplodedView.update_core(self.GuiNetwork.cores[core_num])
         self.GuiCoreExplodedView.update()
+        self.update_tables()
 
     def act_buffer_select(self):
         buff_index = self.GuiCoreSelectorCombo.currentIndex()
         buff_text = self.GuiBufferSelectCombo.currentText()
         print(buff_text)
-        self.BuffInfo.update_tables(buff_index)
+        self.update_tables()
 
     # Menu Bar Methods #
 

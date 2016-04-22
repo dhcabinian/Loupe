@@ -106,6 +106,3 @@ class Network(QtGui.QWidget):
                     flits_per_link.append(flit)
             duplex_link.update_duplex_link(flits_per_link)
         self.update()
-
-    def get_core(self, core_num):
-        return self.cores[core_num]
