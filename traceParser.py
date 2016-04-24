@@ -36,6 +36,7 @@ class traceParser(object):
     def get_cycle(self, cycle_num):
         updated_router_flits = []
         updated_link_flits = []
+        updated_exit_flits = []
         with open(self.csv_file_name, 'r') as f:
             if cycle_num in self.cycle_row_nums:
                 # find next cycle
@@ -59,8 +60,13 @@ class traceParser(object):
                         updated_link_flits.append(insert_flit)
                     elif insert_flit.location == "InUnit":
                         updated_router_flits.append(insert_flit)
-                return updated_router_flits, updated_link_flits
-            return [], []
+
+                    # Create list of flits on core interface link
+                    if insert_flit.location is "Link":
+                        if networkAttr.CORE_CORES <= insert_flit.link_id < networkAttr.CORE_CORES * 2:
+                            updated_exit_flits.append(insert_flit.flit_id)
+                return updated_router_flits, updated_link_flits, updated_exit_flits
+            return [], [], []
 
     #Takes in first line from CSV and converts to network parameters
     def get_network_info(self):

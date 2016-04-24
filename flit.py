@@ -22,6 +22,7 @@ class Flit(QtGui.QWidget):
         self.enqueue_time = None
         self.color = QtGui.QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), 110)
         self.text_color = None
+        self.has_exited = False
         self.parse_trace(trace_row)
         self.create_text_color()
 

@@ -29,8 +29,6 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.start_message()
         QtCore.QMetaObject.connectSlotsByName(self)
 
-
-
     def setup_main_window(self):
         # Main Layout
         self.setObjectName("GuiMainWindow")
@@ -114,7 +112,8 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
 
-    def start_message(self):
+    @staticmethod
+    def start_message():
         message = QtGui.QMessageBox()
         message.setWindowTitle("Starting Loupe")
         string = "To start visualization: open a valid trace file from the File menu"
@@ -352,9 +351,11 @@ class GuiMainWindow(QtGui.QMainWindow):
             self.BuffInfo.set_bottom_table(self.GuiVCBottomTable)
 
         self.BuffInfo.setup_vc_tables(self.GuiVCTopTable, "Top")
-        self.BuffInfo.setup_vc_tables(self.GuiVCBottomTable, "Bottom")
+        if networkAttr.CORE_VCS > 4:
+            self.BuffInfo.setup_vc_tables(self.GuiVCBottomTable, "Bottom")
 
-    def init_calc_network_size(self):
+    @staticmethod
+    def init_calc_network_size():
         width = networkAttr.CORE_COLS * drawAttr.CORE_SIZE \
                 + (networkAttr.CORE_COLS - 1) * drawAttr.LINK_LENGTH + 10
         height = width - 8
@@ -402,10 +403,10 @@ class GuiMainWindow(QtGui.QMainWindow):
     # # Network
     # # Buffer Tables
     def update_cycle(self, cycle_num):
-        updated_router_flits, updated_link_flits = self.trace_parser.get_cycle(cycle_num)
+        updated_router_flits, updated_link_flits, updated_exit_flits = self.trace_parser.get_cycle(cycle_num)
         self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
         self.GuiCycleCounter.display(cycle_num)
-        self.GuiNetwork.update_network(updated_router_flits, updated_link_flits)
+        self.GuiNetwork.update_network(updated_router_flits, updated_link_flits, updated_exit_flits)
         self.update_close_core_view()
         self.update_tables()
 
@@ -457,7 +458,6 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.update_tables()
 
     def act_buffer_select(self):
-        buff_index = self.GuiCoreSelectorCombo.currentIndex()
         buff_text = self.GuiBufferSelectCombo.currentText()
         print(buff_text)
         self.update_tables()
@@ -465,7 +465,8 @@ class GuiMainWindow(QtGui.QMainWindow):
     # Menu Bar Methods #
 
     # # File Methods # #
-    def quit_application(self):
+    @staticmethod
+    def quit_application():
         print("Closing App...")
         sys.exit()
 
@@ -480,21 +481,24 @@ class GuiMainWindow(QtGui.QMainWindow):
         else:
             self.file_open_error_message()
 
-    def file_open_error_message(self):
+    @staticmethod
+    def file_open_error_message():
         message = QtGui.QMessageBox()
         message.setWindowTitle("Error opening file")
         message.setText("File selected must be a .csv")
         message.setIcon(QtGui.QMessageBox.Warning)
         message.exec_()
 
-    def file_loading_message(self):
+    @staticmethod
+    def file_loading_message():
         message = QtGui.QMessageBox()
         message.setWindowTitle("Loading Trace....")
         message.setText("Please wait a moment while indexing of the trace occurs. This may take a few seconds...")
         message.setIcon(QtGui.QMessageBox.Information)
         message.exec_()
 
-    def file_loaded_message(self):
+    @staticmethod
+    def file_loaded_message():
         message = QtGui.QMessageBox()
         message.setWindowTitle("Trace Loaded!")
         message.setText("Trace was succesfully loaded!")
@@ -507,7 +511,8 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiGarnet = GuiGenerateGarnet()
         self.GuiGarnet.show()
 
-    def garnet_help(self):
+    @staticmethod
+    def garnet_help():
         print("Garnet Help")
 
     # # Cycle Methods # #
@@ -536,7 +541,8 @@ class GuiMainWindow(QtGui.QMainWindow):
             else:
                 self.go_to_cycle_error()
 
-    def go_to_cycle_error(self):
+    @staticmethod
+    def go_to_cycle_error():
         message = QtGui.QMessageBox()
         message.setWindowTitle("Invalid Cycle Number")
         string = "Cycle number must be in between 0 - " + str(networkAttr.NET_TOTCYCLES) + "\n"

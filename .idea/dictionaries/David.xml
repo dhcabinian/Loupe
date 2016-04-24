@@ -7,6 +7,7 @@
       <w>dest</w>
       <w>disambig</w>
       <w>grapics</w>
+      <w>heigh</w>
       <w>inital</w>
       <w>injectionrate</w>
       <w>inunit</w>
@@ -15,8 +16,10 @@
       <w>numcpus</w>
       <w>numrows</w>
       <w>outport</w>
+      <w>possib</w>
       <w>preprocess</w>
       <w>printit</w>
+      <w>qwidgets</w>
       <w>rects</w>
       <w>retranslate</w>
       <w>simcycles</w>

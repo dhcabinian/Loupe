@@ -2,7 +2,8 @@ from PyQt4 import QtCore, QtGui
 from drawAttr import drawAttr
 from networkAttr import networkAttr
 
-#Implements a single direction link
+
+# Implements a single direction link
 class Link(QtGui.QWidget):
     def __init__(self, core_send, core_rec):
         super(Link, self).__init__()
@@ -76,8 +77,8 @@ class Link(QtGui.QWidget):
         self.top_left_corner.setX(link_gen_xoffset)
         self.top_left_corner.setY(link_gen_yoffset)
 
-    #Draws the link
-    #Colors link based on flit
+    # Draws the link
+    # Colors link based on flit
     def draw_link(self, painter):
         painter.drawRect(self.rect)
         if not self.link_flit:
@@ -85,30 +86,38 @@ class Link(QtGui.QWidget):
         else:
             painter.fillRect(self.rect, self.link_flit[0].color)
 
-    #Retreives the flit on the link if it exists
-    #Converts list to single flit
+    # Retreives the flit on the link if it exists
+    # Converts list to single flit
     def get_link_flit(self):
         if self.link_flit is []:
             return None
         else:
             return self.link_flit[0]
 
-    #Updates the link with a flit parsed
+    # Updates the link with a flit parsed
     def update_link(self, updated_link_flit):
         self.link_flit = updated_link_flit
 
-    #Sets link id according to garnet specs
-    #Currently hardcoded to mesh topology
+    # Sets link id according to garnet specs
+    # Currently hardcoded to mesh topology
     def set_link_id(self):
         link_id = 2 * networkAttr.CORE_CORES
         if self.link_dir is "East" or self.link_dir is "West":
             link_id += (min(self.core_send.core_id, self.core_rec.core_id) - self.core_send.row)
         if self.link_dir is "North" or self.link_dir is "South":
-            offset = min(self.core_send.core_id, self.core_rec.core_id)
+            core_id = min(self.core_send.core_id, self.core_rec.core_id)
+            if core_id is self.core_send.core_id:
+                row = self.core_send.row
+                col = self.core_send.col
+            else:
+                row = self.core_rec.row
+                col = self.core_rec.col
+            offset = (col * (networkAttr.CORE_ROWS - 1)) + row
+
             num_e_w_links = (networkAttr.CORE_COLS - 1) * networkAttr.CORE_ROWS
             link_id += num_e_w_links + offset
         self.link_id = link_id
 
-    #Retreives link id
+    # Retreives link id
     def get_link_id(self):
         return self.link_id
