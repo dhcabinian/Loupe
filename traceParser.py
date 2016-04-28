@@ -62,9 +62,10 @@ class traceParser(object):
                         updated_router_flits.append(insert_flit)
 
                     # Create list of flits on core interface link
-                    if insert_flit.location is "Link":
+                    if insert_flit.location == "Link":
                         if networkAttr.CORE_CORES <= insert_flit.link_id < networkAttr.CORE_CORES * 2:
-                            updated_exit_flits.append(insert_flit.flit_id)
+                            updated_exit_flits.append(insert_flit.id)
+
                 return updated_router_flits, updated_link_flits, updated_exit_flits
             return [], [], []
 

@@ -17,10 +17,13 @@ class GuiMainWindow(QtGui.QMainWindow):
 
     def setup(self):
         self.GuiGarnet = None
+        self.GuiNetwork = None
         self.timer = None
         self.autoCycle = False
         self.trace_parser = traceParser()
         self.cycle_iterator = None
+        self.auto_cycle_speed = 1
+        self.lock = threading.Lock()
         self.setup_main_window()
         self.setup_main_layout()
         self.setup_menu_bar()
@@ -53,6 +56,9 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiGoToMenu = QtGui.QMenu(self.GuiMenuBar)
         self.GuiGoToMenu.setObjectName("GuiGoToMenu")
         self.GuiGoToMenu.setTitle("Go To")
+        self.GuiAnimationMenu = QtGui.QMenu(self.GuiMenuBar)
+        self.GuiAnimationMenu.setObjectName("GuiAnimationMenu")
+        self.GuiAnimationMenu.setTitle("Animation")
         self.GuiGarnetMenu = QtGui.QMenu(self.GuiMenuBar)
         self.GuiGarnetMenu.setObjectName("GuiGarnetMenu")
         self.GuiGarnetMenu.setTitle("Garnet")
@@ -94,6 +100,10 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiFileExitMenuAction.triggered.connect(self.quit_application)
         self.GuiFileExitMenuAction.setObjectName("GuiFileExitMenuAction")
         self.GuiFileExitMenuAction.setText("Quit")
+        self.GuiAnimationMenuAction = QtGui.QAction(self)
+        self.GuiAnimationMenuAction.triggered.connect(self.set_animation_speed)
+        self.GuiAnimationMenuAction.setObjectName("GuiAnimationMenuAction")
+        self.GuiAnimationMenuAction.setText("Set Animation Speed")
 
         self.GuiFileMenu.addAction(self.GuiFileOpenTraceMenuAction)
         self.GuiFileMenu.addAction(self.GuiFileExitMenuAction)
@@ -102,9 +112,11 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiGoToMenu.addAction(self.GuiGoToCycleMenuAction)
         self.GuiGarnetMenu.addAction(self.GuiGarnetGenerateMenuAction)
         self.GuiGarnetMenu.addAction(self.GuiGarnetHelpMenuAction)
+        self.GuiAnimationMenu.addAction(self.GuiAnimationMenuAction)
         self.GuiMenuBar.addAction(self.GuiFileMenu.menuAction())
         self.GuiMenuBar.addAction(self.GuiGoToMenu.menuAction())
         self.GuiMenuBar.addAction(self.GuiGarnetMenu.menuAction())
+        self.GuiMenuBar.addAction(self.GuiAnimationMenu.menuAction())
 
     def setup_status_bar(self):
         # Status Bar
@@ -406,7 +418,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         updated_router_flits, updated_link_flits, updated_exit_flits = self.trace_parser.get_cycle(cycle_num)
         self.GuiCycleProgressBar.setValue(cycle_num / networkAttr.NET_TOTCYCLES * 100)
         self.GuiCycleCounter.display(cycle_num)
-        self.GuiNetwork.update_network(updated_router_flits, updated_link_flits, updated_exit_flits)
+        self.GuiNetwork.update_network(updated_router_flits, updated_link_flits, updated_exit_flits, cycle_num)
         self.update_close_core_view()
         self.update_tables()
 
@@ -417,12 +429,20 @@ class GuiMainWindow(QtGui.QMainWindow):
     def act_start_cycle(self):
         cycle_in = self.GuiAutoCycleCycleEntry.text()
         print(cycle_in)
-        self.cycle_iterator = int(cycle_in)
-        self.auto_cycle_thread()
+        try:
+            int(cycle_in)
+        except ValueError:
+            self.go_to_cycle_error()
+            return
+        if int(cycle_in) < 0:
+            self.go_to_cycle_error()
+        else:
+            self.cycle_iterator = int(cycle_in)
+            self.auto_cycle_thread()
 
     def auto_cycle_thread(self):
         if self.cycle_iterator > 0:
-            threading.Timer(1.0, self.auto_cycle_thread).start()
+            threading.Timer(self.auto_cycle_speed, self.auto_cycle_thread).start()
             self.act_next_cycle()
             self.cycle_iterator -= 1
 
@@ -490,6 +510,14 @@ class GuiMainWindow(QtGui.QMainWindow):
         message.exec_()
 
     @staticmethod
+    def trace_not_loaded_error_message():
+        message = QtGui.QMessageBox()
+        message.setWindowTitle("No Trace Loaded")
+        message.setText("Please load a trace.")
+        message.setIcon(QtGui.QMessageBox.Warning)
+        message.exec_()
+
+    @staticmethod
     def file_loading_message():
         message = QtGui.QMessageBox()
         message.setWindowTitle("Loading Trace....")
@@ -517,29 +545,59 @@ class GuiMainWindow(QtGui.QMainWindow):
 
     # # Cycle Methods # #
     def go_to_cycle_0(self):
-        cycle_num = self.GuiNetwork.go_to_cycle(0)
-        if cycle_num is not None:
-            self.update_cycle(cycle_num)
-        else:
-            self.go_to_cycle_error()
-
-    def go_to_cycle_500(self):
-        cycle_num = self.GuiNetwork.go_to_cycle(500)
-        if cycle_num is not None:
-            self.update_cycle(cycle_num)
-        else:
-            self.go_to_cycle_error()
-
-    def go_to_cycle_x(self):
-        input_dialog = QtGui.QInputDialog()
-        text, ok = QtGui.QInputDialog.getText(input_dialog, 'Input Cycle Number', 'Enter Cycle:')
-        if ok and int(text) >= 0:
-            cycle_num = self.GuiNetwork.go_to_cycle(int(text))
-            print(cycle_num)
+        if self.GuiNetwork is not None:
+            cycle_num = self.GuiNetwork.go_to_cycle(0)
             if cycle_num is not None:
                 self.update_cycle(cycle_num)
             else:
                 self.go_to_cycle_error()
+        else:
+            self.trace_not_loaded_error_message()
+
+    def go_to_cycle_500(self):
+        if self.GuiNetwork is not None:
+            cycle_num = self.GuiNetwork.go_to_cycle(500)
+            if cycle_num is not None:
+                self.update_cycle(cycle_num)
+            else:
+                self.go_to_cycle_error()
+        else:
+            self.trace_not_loaded_error_message()
+
+    def go_to_cycle_x(self):
+        if self.GuiNetwork is not None:
+            input_dialog = QtGui.QInputDialog()
+            text, ok = QtGui.QInputDialog.getText(input_dialog, 'Input Cycle Number', 'Enter Cycle:')
+            try:
+                int(text)
+            except ValueError:
+                self.go_to_cycle_error()
+            if ok and int(text) >= 0:
+                cycle_num = self.GuiNetwork.go_to_cycle(int(text))
+                print(cycle_num)
+                if cycle_num is not None:
+                    self.update_cycle(cycle_num)
+                else:
+                    self.go_to_cycle_error()
+            elif int(text) < 0:
+                self.go_to_cycle_error()
+        else:
+            self.trace_not_loaded_error_message()
+
+    # # Animation Menu Actions # #
+    def set_animation_speed(self):
+        input_dialog = QtGui.QInputDialog()
+        text, ok = QtGui.QInputDialog.getText(input_dialog, 'Speed:', 'Enter speed between .5 - 20')
+        with self.lock:
+            try:
+                float(text)
+            except ValueError:
+                self.go_to_cycle_error()
+                return
+            if float(text) < .5 or float(text) > 20:
+                self.value_entered_int_error()
+            else:
+                self.auto_cycle_speed = float(text)
 
     @staticmethod
     def go_to_cycle_error():
@@ -547,5 +605,13 @@ class GuiMainWindow(QtGui.QMainWindow):
         message.setWindowTitle("Invalid Cycle Number")
         string = "Cycle number must be in between 0 - " + str(networkAttr.NET_TOTCYCLES) + "\n"
         message.setText(string)
+        message.setIcon(QtGui.QMessageBox.Warning)
+        message.exec_()
+
+    @staticmethod
+    def value_entered_int_error():
+        message = QtGui.QMessageBox()
+        message.setWindowTitle("Invalid entry")
+        message.setText("Entry was not an integer or in the correct range")
         message.setIcon(QtGui.QMessageBox.Warning)
         message.exec_()

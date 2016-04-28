@@ -7,6 +7,7 @@ from PyQt4 import QtGui
 class Flit(QtGui.QWidget):
     def __init__(self, trace_row):
         super(Flit, self).__init__()
+        self.cycle = None
         self.location = None
         self.in_dir = None
         self.router = None
@@ -23,6 +24,7 @@ class Flit(QtGui.QWidget):
         self.color = QtGui.QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), 110)
         self.text_color = None
         self.has_exited = False
+        self.cycle_exited = None
         self.parse_trace(trace_row)
         self.create_text_color()
 
@@ -33,7 +35,7 @@ class Flit(QtGui.QWidget):
     # Format for [flit]
     # [flit, id, type, vnet, vc, src, dest, time]
     def parse_trace(self, row):
-        cycle = int(row[0])
+        self.cycle = int(row[0])
         self.location = row[1]
         if self.location == "Link":
             self.link_id = int(row[2])
@@ -79,7 +81,7 @@ class Flit(QtGui.QWidget):
             self.outport = "North"
         elif int(row[12]) == 5:
             self.outport = "Unknown"
-        self.src_delay = cycle - self.enqueue_time
+        self.src_delay = self.cycle - self.enqueue_time
 
     #Sets the flit color
     def set_flit_color(self, color):

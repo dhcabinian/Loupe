@@ -59,32 +59,30 @@ class Core(QtGui.QWidget):
             buf.draw_buffer(painter)
 
     # Updates the core using parsed data divided into location (router, link)
-    def update_core(self, updated_router_flits, possible_link_flits, updated_exit_flits):
-        # if self.core_id is 10:
-        #     # print ("Core")
-        #     # print (possible_link_flits)
+    def update_core(self, updated_router_flits, possible_link_flits, updated_exit_flits, cycle_num):
         for buf in self.buffers:
             flits_per_buffer = []
             for flit in updated_router_flits:
                 if flit.in_dir == buf.link_dir:
                     flits_per_buffer.append(flit)
+            for buf_flit in buf.flits:
+                if not buf_flit.has_exited:
+                    if buf_flit.cycle <= cycle_num:
+                        flits_per_buffer.append(buf_flit)
             # checks to see if a buffer is driving a link
             # keeps the flit in buffer to show the VC driving the link
             for link_flit in possible_link_flits:
                 for buf_flit in buf.flits:
                     if buf_flit.id == link_flit.id:
-                        flits_per_buffer.append(buf_flit)
                         buf_flit.has_exited = True
+                        buf_flit.cycle_exited = cycle_num
             # Maintain flit state if this is not their destination core
             for buf_flit in buf.flits:
                 if buf_flit.id in updated_exit_flits:
                     buf_flit.has_exited = True
-                if buf_flit.dest is self.core_id:
-                    buf_flit.has_exited = True
-            for buf_flit in buf.flits:
-                if not buf_flit.has_exited:
-                    flits_per_buffer.append(buf_flit)
+                    buf_flit.cycle_exited = cycle_num
             buf.update_buffer(flits_per_buffer)
+
 
     # Sets the core id based on the garnet id method rather than pyQT orientation
     def set_core_id(self, core_id):

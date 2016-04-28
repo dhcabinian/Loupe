@@ -103,7 +103,7 @@ class Network(QtGui.QWidget):
         return Network.CYCLE_NUMBER
 
     # Updates all graphics objects of the network based on parsed cycle data
-    def update_network(self, updated_router_flits, updated_link_flits, updated_exit_flits):
+    def update_network(self, updated_router_flits, updated_link_flits, updated_exit_flits, cycle_num):
         for core in self.cores:
             flits_per_router = []
             flits_possib_on_link = []
@@ -115,7 +115,7 @@ class Network(QtGui.QWidget):
             for flit in updated_link_flits:
                 if flit.link_id in core.link_ids:
                     flits_possib_on_link.append(flit)
-            core.update_core(flits_per_router, flits_possib_on_link, updated_exit_flits)
+            core.update_core(flits_per_router, flits_possib_on_link, updated_exit_flits, cycle_num)
         # Sorts flits from parser by link using garnet link id scheme
         for duplex_link in self.links:
             flits_per_link = []
