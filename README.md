@@ -17,6 +17,23 @@ A Network on Chip Visualization Tool
 
 # General Work Flow:
 1. Generate a trace file using GARNET
+  1. Clone a gem5 simulator
+  2. Navigate to `gem5/src/mem/ruby/network/garnet2.0`
+  3. `hg init`
+  4. `cd .hg`
+  5. Create a `hgrc' file using vim or another editor 
+    - Example: `vim hgrc`
+  6. Insert the following lines in the hgrc configuration file
+    - [extensions]
+    - hgext.mq=
+    - hgext.extdiff=
+    - hgext.patchbomb=
+    - [ui]
+    - username = First Last <email@address>
+  7. Copy the Loupe Patch File to the `gem5/src/mem/ruby/network/garnet2.0` directory
+  8. `hg import loupe.patch`
+  9. Rebuild gem5
+  10. Running a simulation will create a `LoupeTraceFile.csv`
 2. Start Loupe
 3. `File` -> `Load Trace`
 4. Begin visualizing mesh networks!
