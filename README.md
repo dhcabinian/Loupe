@@ -29,7 +29,7 @@ A Network on Chip Visualization Tool
     - hgext.extdiff=
     - hgext.patchbomb=
     - [ui]
-    - username = First Last <email@address>
+    - username = First Last < email@address >
   7. Copy the Loupe Patch File to the `gem5/src/mem/ruby/network/garnet2.0` directory
   8. `hg import loupe.patch`
   9. Rebuild gem5
