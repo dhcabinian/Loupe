@@ -33,7 +33,10 @@ class Core(QtGui.QWidget):
     # Creates the core ID text and location
     def create_core_id_text(self):
         pos = self.rect.center()
-        pos.setY(pos.y() + 15)  # 15
+        if networkAttr.CORE_VCS == 4:
+            pos.setY(pos.y() + 25)  # 15
+        else:
+            pos.setY(pos.y() + 15)  # 15
         pos.setX(pos.x() - 4)
         self.text_id_pos = pos
 

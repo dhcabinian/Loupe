@@ -55,7 +55,10 @@ class CoreExploded(QtGui.QWidget):
     #Creates the core id text
     def create_core_id_text(self):
         pos = self.rect.center()
-        pos.setY(pos.y() + CoreExploded.CORE_ID_Y_OFFSET)
+        if networkAttr.CORE_VCS == 4:
+            pos.setY(pos.y() + CoreExploded.CORE_ID_Y_OFFSET + 15)
+        else:
+            pos.setY(pos.y() + CoreExploded.CORE_ID_Y_OFFSET)
         pos.setX(pos.x() + CoreExploded.CORE_ID_X_OFFSET)
         self.text_id_pos = pos
 
