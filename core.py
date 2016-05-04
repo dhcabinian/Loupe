@@ -72,6 +72,7 @@ class Core(QtGui.QWidget):
                             buf_flit.deadlocked = True
                         else:
                             buf_flit.deadlocked = False
+                        buf_flit.src_delay += 1
                         flits_per_buffer.append(buf_flit)
 
             # checks to see if a buffer is driving a link
