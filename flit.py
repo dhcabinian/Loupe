@@ -5,12 +5,18 @@ from PyQt4 import QtGui
 
 
 class Flit(QtGui.QWidget):
+
+    FLIT_CYCLES_DEADLOCK = None
+    FLIT_DEADLOCK_COLOR = QtGui.QColor(255, 0, 0, 200)
+    FLIT_DEADLOCK_TEXT_COLOR = QtGui.QColor(0, 0, 0, 255)
+
     def __init__(self, trace_row):
         super(Flit, self).__init__()
         self.cycle = None
         self.location = None
         self.in_dir = None
         self.router = None
+        self.deadlocked = False
         self.link_id = None
         self.id = None
         self.vnet = None

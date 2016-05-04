@@ -188,11 +188,18 @@ class Buffer(QtGui.QWidget):
             #Colors in VC buffers containing flits
             painter.drawText(self.buffer_vc_ids_text_pos[index], self.buffer_vc_Ids_text[index])
         for flit in self.flits:
-            painter.fillRect(self.rects[flit.vc], flit.color)
-            painter.setPen(flit.text_color)
-            painter.drawText(self.buffer_vc_ids_text_pos[flit.vc], self.buffer_vc_Ids_text[flit.vc])
-            # reset to black after
-            painter.setPen(QtGui.QColor(0, 0, 0, 255))
+            if not flit.deadlocked:
+                painter.fillRect(self.rects[flit.vc], flit.color)
+                painter.setPen(flit.text_color)
+                painter.drawText(self.buffer_vc_ids_text_pos[flit.vc], self.buffer_vc_Ids_text[flit.vc])
+                # reset to black after
+                painter.setPen(QtGui.QColor(0, 0, 0, 255))
+            elif flit.deadlocked:
+                painter.fillRect(self.rects[flit.vc], flit.FLIT_DEADLOCK_COLOR)
+                painter.setPen(flit.FLIT_DEADLOCK_TEXT_COLOR)
+                painter.drawText(self.buffer_vc_ids_text_pos[flit.vc], self.buffer_vc_Ids_text[flit.vc])
+                # reset to black after
+                painter.setPen(QtGui.QColor(0, 0, 0, 255))
 
     @staticmethod
     def set_to_expanded():

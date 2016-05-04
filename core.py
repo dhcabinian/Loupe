@@ -3,7 +3,7 @@ from PyQt4 import QtCore, QtGui
 from buffer import Buffer
 from networkAttr import networkAttr
 from drawAttr import drawAttr
-
+from flit import Flit
 
 # Core Implementation
 class Core(QtGui.QWidget):
@@ -68,7 +68,12 @@ class Core(QtGui.QWidget):
             for buf_flit in buf.flits:
                 if not buf_flit.has_exited:
                     if buf_flit.cycle <= cycle_num:
+                        if Flit.FLIT_CYCLES_DEADLOCK is not None and cycle_num - buf_flit.cycle > Flit.FLIT_CYCLES_DEADLOCK:
+                            buf_flit.deadlocked = True
+                        else:
+                            buf_flit.deadlocked = False
                         flits_per_buffer.append(buf_flit)
+
             # checks to see if a buffer is driving a link
             # keeps the flit in buffer to show the VC driving the link
             for link_flit in possible_link_flits:

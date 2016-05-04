@@ -6,6 +6,7 @@ from CoreExploded import CoreExploded
 from BuffInfo import BuffInfo
 from generateGarnet import GuiGenerateGarnet
 from traceParser import traceParser
+from flit import Flit
 import sys
 import threading
 
@@ -56,9 +57,9 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiGoToMenu = QtGui.QMenu(self.GuiMenuBar)
         self.GuiGoToMenu.setObjectName("GuiGoToMenu")
         self.GuiGoToMenu.setTitle("Go To")
-        self.GuiAnimationMenu = QtGui.QMenu(self.GuiMenuBar)
-        self.GuiAnimationMenu.setObjectName("GuiAnimationMenu")
-        self.GuiAnimationMenu.setTitle("Animation")
+        self.GuiOptionsMenu = QtGui.QMenu(self.GuiMenuBar)
+        self.GuiOptionsMenu.setObjectName("GuiOptionsMenu")
+        self.GuiOptionsMenu.setTitle("Options")
         self.GuiGarnetMenu = QtGui.QMenu(self.GuiMenuBar)
         self.GuiGarnetMenu.setObjectName("GuiGarnetMenu")
         self.GuiGarnetMenu.setTitle("Garnet")
@@ -105,6 +106,11 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiAnimationMenuAction.setObjectName("GuiAnimationMenuAction")
         self.GuiAnimationMenuAction.setText("Set Animation Speed")
 
+        self.GuiDeadlockMenuAction = QtGui.QAction(self)
+        self.GuiDeadlockMenuAction.triggered.connect(self.set_deadlock_cycles)
+        self.GuiDeadlockMenuAction.setObjectName("GuiDeadlockMenuAction")
+        self.GuiDeadlockMenuAction.setText("Set Deadlock Notification")
+
         self.GuiFileMenu.addAction(self.GuiFileOpenTraceMenuAction)
         self.GuiFileMenu.addAction(self.GuiFileExitMenuAction)
         self.GuiGoToMenu.addAction(self.GuiGoTo0MenuAction)
@@ -112,11 +118,12 @@ class GuiMainWindow(QtGui.QMainWindow):
         self.GuiGoToMenu.addAction(self.GuiGoToCycleMenuAction)
         self.GuiGarnetMenu.addAction(self.GuiGarnetGenerateMenuAction)
         self.GuiGarnetMenu.addAction(self.GuiGarnetHelpMenuAction)
-        self.GuiAnimationMenu.addAction(self.GuiAnimationMenuAction)
+        self.GuiOptionsMenu.addAction(self.GuiAnimationMenuAction)
+        self.GuiOptionsMenu.addAction(self.GuiDeadlockMenuAction)
         self.GuiMenuBar.addAction(self.GuiFileMenu.menuAction())
         self.GuiMenuBar.addAction(self.GuiGoToMenu.menuAction())
         self.GuiMenuBar.addAction(self.GuiGarnetMenu.menuAction())
-        self.GuiMenuBar.addAction(self.GuiAnimationMenu.menuAction())
+        self.GuiMenuBar.addAction(self.GuiOptionsMenu.menuAction())
 
     def setup_status_bar(self):
         # Status Bar
@@ -584,7 +591,7 @@ class GuiMainWindow(QtGui.QMainWindow):
         else:
             self.trace_not_loaded_error_message()
 
-    # # Animation Menu Actions # #
+    # # Options Menu Actions # #
     def set_animation_speed(self):
         input_dialog = QtGui.QInputDialog()
         text, ok = QtGui.QInputDialog.getText(input_dialog, 'Speed:', 'Enter speed between .5 - 20')
@@ -598,6 +605,23 @@ class GuiMainWindow(QtGui.QMainWindow):
                 self.value_entered_int_error()
             else:
                 self.auto_cycle_speed = float(text)
+
+    # # Animation Menu Actions # #
+    def set_deadlock_cycles(self):
+        input_dialog = QtGui.QInputDialog()
+        text, ok = QtGui.QInputDialog.getText(input_dialog, 'Cycles:', 'Enter number of cycles for deadlock notification (0 for no notifications)')
+        try:
+            int(text)
+        except ValueError:
+            self.go_to_cycle_error()
+            return
+        if int(text) < 0 or int(text) > networkAttr.NET_TOTCYCLES:
+            self.value_entered_int_error()
+        else:
+            if int(text) is 0:
+                Flit.FLIT_CYCLES_DEADLOCK = None
+            else:
+                Flit.FLIT_CYCLES_DEADLOCK = int(text)
 
     @staticmethod
     def go_to_cycle_error():
