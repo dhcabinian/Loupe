@@ -1,0 +1,406 @@
+changeset:   1:cc06de2299ee
+tag:         tip
+user:        David Cabinian <dcabinian3@gatech.edu>
+date:        Thu Apr 28 18:19:40 2016 -0400
+summary:     Loupe Patch
+
+diff -r 506d20c872c8 -r cc06de2299ee CommonTypes.hh
+--- a/CommonTypes.hh	Thu Apr 28 18:19:01 2016 -0400
++++ b/CommonTypes.hh	Thu Apr 28 18:19:40 2016 -0400
+@@ -28,16 +28,17 @@
+  * Authors: Niket Agarwal
+  */
+ 
++//test
++
+ #ifndef __MEM_RUBY_NETWORK_GARNET_NETWORKHEADER_HH__
+ #define __MEM_RUBY_NETWORK_GARNET_NETWORKHEADER_HH__
+ 
+ #include "mem/ruby/common/NetDest.hh"
+ 
+-enum flit_type {HEAD_, BODY_, TAIL_, HEAD_TAIL_, NUM_FLIT_TYPE_};
++enum flit_type {HEAD_, BODY_, TAIL_, HEAD_TAIL_, CREDIT_HEAD_, NUM_FLIT_TYPE_};
+ enum VC_state_type {IDLE_, VC_AB_, ACTIVE_, NUM_VC_STATE_TYPE_};
+ enum VNET_type {CTRL_VNET_, DATA_VNET_, NULL_VNET_, NUM_VNET_TYPE_};
+ enum flit_stage {I_, VA_, SA_, ST_, LT_, NUM_FLIT_STAGE_};
+-enum link_type { EXT_IN_, EXT_OUT_, INT_, NUM_LINK_TYPES_ };
+ enum port_direction_type {L_ = 0, W_ = 1, S_ = 2, E_ = 3, N_ = 4, UNKNOWN_ = 5, NUM_PORT_DIRECTION_TYPE_};
+ enum RoutingAlgorithm { TABLE_ = 0, XY_ = 1, RANDOM_ = 2, TURN_MODEL_ = 3, NUM_ROUTING_ALGORITHM_};
+ 
+@@ -47,6 +48,7 @@
+     NetDest net_dest;
+ 
+     // destination format for topology-specific routing
++    int src_router;
+     int dest_ni;
+     int dest_router;
+     int hops;
+diff -r 506d20c872c8 -r cc06de2299ee GarnetNetwork.cc
+--- a/GarnetNetwork.cc	Thu Apr 28 18:19:01 2016 -0400
++++ b/GarnetNetwork.cc	Thu Apr 28 18:19:40 2016 -0400
+@@ -36,7 +36,6 @@
+ #include "base/stl_helpers.hh"
+ #include "mem/ruby/common/NetDest.hh"
+ #include "mem/ruby/network/MessageBuffer.hh"
+-#include "mem/ruby/network/garnet2.0/CommonTypes.hh"
+ #include "mem/ruby/network/garnet2.0/CreditLink.hh"
+ #include "mem/ruby/network/garnet2.0/GarnetLink.hh"
+ #include "mem/ruby/network/garnet2.0/NetworkInterface.hh"
+@@ -89,6 +88,11 @@
+         m_nis.push_back(ni);
+         ni->init_net_ptr(this);
+     }
++
++    //David Added
++    loupeFile.open("LoupeTraceFile.csv", std::ofstream::out);
++    loupeFileptr = &loupeFile;
++
+ }
+ 
+ void
+@@ -135,6 +139,7 @@
+             router->printFaultVector(cout);
+         }
+     }
++    loupeFile << *this;
+ }
+ 
+ GarnetNetwork::~GarnetNetwork()
+@@ -161,9 +166,11 @@
+ 
+     GarnetExtLink* garnet_link = safe_cast<GarnetExtLink*>(link);
+     NetworkLink* net_link = garnet_link->m_network_links[direction];
+-    net_link->setType(EXT_IN_);
+     CreditLink* credit_link = garnet_link->m_credit_links[direction];
+ 
++    net_link->init_loupe_ptr(loupeFileptr);
++    credit_link->init_loupe_ptr(loupeFileptr);
++
+     m_networklinks.push_back(net_link);
+     m_creditlinks.push_back(credit_link);
+ 
+@@ -189,9 +196,12 @@
+ 
+     GarnetExtLink* garnet_link = safe_cast<GarnetExtLink*>(link);
+     NetworkLink* net_link = garnet_link->m_network_links[direction];
+-    net_link->setType(EXT_OUT_);
+     CreditLink* credit_link = garnet_link->m_credit_links[direction];
+ 
++    net_link->init_loupe_ptr(loupeFileptr);
++    credit_link->init_loupe_ptr(loupeFileptr);
++
++
+     m_networklinks.push_back(net_link);
+     m_creditlinks.push_back(credit_link);
+ 
+@@ -216,9 +226,12 @@
+ {
+     GarnetIntLink* garnet_link = safe_cast<GarnetIntLink*>(link);
+     NetworkLink* net_link = garnet_link->m_network_links[direction];
+-    net_link->setType(INT_);
+     CreditLink* credit_link = garnet_link->m_credit_links[direction];
+ 
++    net_link->init_loupe_ptr(loupeFileptr);
++    credit_link->init_loupe_ptr(loupeFileptr);
++
++
+     m_networklinks.push_back(net_link);
+     m_creditlinks.push_back(credit_link);
+ 
+@@ -351,9 +364,6 @@
+     m_avg_hops = m_total_hops / sum(m_flits_received);
+ 
+     // Links
+-    m_total_ext_in_link_utilization.name(name() + ".ext_in_link_utilization");
+-    m_total_ext_out_link_utilization.name(name() + ".ext_out_link_utilization");
+-    m_total_int_link_utilization.name(name() + ".int_link_utilization");
+     m_average_link_utilization.name(name() + ".avg_link_utilization");
+ 
+     m_average_vc_load
+@@ -367,25 +377,15 @@
+ GarnetNetwork::collateStats()
+ {
+     RubySystem *rs = params()->ruby_system;
+-    double time_delta = double(curCycle() - rs->getStartCycle());
++    double timeelta = double(curCycle() - rs->getStartCycle());
+ 
+     for (int i = 0; i < m_networklinks.size(); i++) {
+-        link_type type = m_networklinks[i]->getType();
+-        int activity = m_networklinks[i]->getLinkUtilization();
+-
+-        if (type == EXT_IN_)
+-            m_total_ext_in_link_utilization += activity;
+-        else if (type == EXT_OUT_)
+-            m_total_ext_out_link_utilization += activity;
+-        else if (type == INT_)
+-            m_total_int_link_utilization += activity;
+-
+         m_average_link_utilization +=
+-            (double(activity) / time_delta);
++            (double(m_networklinks[i]->getLinkUtilization())) / timeelta;
+ 
+         vector<unsigned int> vc_load = m_networklinks[i]->getVcLoad();
+         for (int j = 0; j < vc_load.size(); j++) {
+-            m_average_vc_load[j] += ((double)vc_load[j] / time_delta);
++            m_average_vc_load[j] += ((double)vc_load[j] / timeelta);
+         }
+     }
+ 
+@@ -398,7 +398,12 @@
+ void
+ GarnetNetwork::print(ostream& out) const
+ {
+-    out << "[GarnetNetwork]";
++    out << "GarnetNetwork, ";
++    out << "Cores=" << m_num_rows * m_num_cols << ", ";
++    out << "Rows=" << m_num_rows << ", ";
++    out << "VCs=" << m_vcs_per_vnet << ", ";
++    out << "Vnets=" << m_virtual_networks;
++    out << ",\n";
+ }
+ 
+ GarnetNetwork *
+diff -r 506d20c872c8 -r cc06de2299ee GarnetNetwork.hh
+--- a/GarnetNetwork.hh	Thu Apr 28 18:19:01 2016 -0400
++++ b/GarnetNetwork.hh	Thu Apr 28 18:19:40 2016 -0400
+@@ -33,6 +33,7 @@
+ #define __MEM_RUBY_NETWORK_GARNET_FIXED_PIPELINE_GARNETNETWORK_D_HH__
+ 
+ #include <iostream>
++#include <fstream>
+ #include <vector>
+ 
+ #include "mem/ruby/network/Network.hh"
+@@ -62,6 +63,11 @@
+     int getNumRows() const { return m_num_rows; }
+     int getNumCols() { return m_num_cols; }
+ 
++    //For Loupe
++    std::ofstream loupeFile;
++    std::ofstream * loupeFileptr;
++    std::ofstream * getLoupeFileptr() { return loupeFileptr; }
++
+     // for network
+     uint32_t getNiFlitSize() const { return m_ni_flit_size; }
+     uint32_t getNumPipeStages() const { return m_num_pipe_stages; }
+@@ -158,6 +164,7 @@
+     int m_routing_algorithm;
+     bool m_enable_fault_model;
+ 
++
+     // Statistical variables
+     Stats::Vector m_packets_received;
+     Stats::Vector m_packets_injected;
+@@ -181,9 +188,6 @@
+     Stats::Formula m_avg_flit_queueing_latency;
+     Stats::Formula m_avg_flit_latency;
+ 
+-    Stats::Scalar m_total_ext_in_link_utilization;
+-    Stats::Scalar m_total_ext_out_link_utilization;
+-    Stats::Scalar m_total_int_link_utilization;
+     Stats::Scalar m_average_link_utilization;
+     Stats::Vector m_average_vc_load;
+ 
+diff -r 506d20c872c8 -r cc06de2299ee InputUnit.cc
+--- a/InputUnit.cc	Thu Apr 28 18:19:01 2016 -0400
++++ b/InputUnit.cc	Thu Apr 28 18:19:40 2016 -0400
+@@ -106,24 +106,22 @@
+         m_num_buffer_writes[vnet]++;
+         m_num_buffer_reads[vnet]++;
+ 
+-        if (m_pipeline_delay == 1)
+-        {
+-            // 1-cycle router
+-            // Flit goes for SA directly
+-            t_flit->advance_stage(SA_, m_router->curCycle());
+-        }
+-        else
+-        {
+-            assert(m_pipeline_delay > 1);
+-            // Router delay is modeled by making flit wait in buffer for
+-            // (m_pipeline_delay cycles - 1) cycles before going for SA
++        // This is the first-stage of the router
++        // Wait for (m_pipeline_delay - 1) cycles before
++        // performing Switch Allocation
++        Cycles wait_time = m_pipeline_delay - Cycles(1);
++        t_flit->advance_stage(SA_, m_router->curCycle() + wait_time);
+ 
+-            Cycles wait_time = m_pipeline_delay - Cycles(1);
+-            t_flit->advance_stage(SA_, m_router->curCycle() + wait_time);
++        //David Added
++        GarnetNetwork* net_ptr = m_router->get_net_ptr();
++        ofstream* file_ptr = net_ptr->getLoupeFileptr();
++        *file_ptr  << m_router->curCycle() << ",";
++        *file_ptr  << "InUnit,";
++        *file_ptr  << m_router->get_id() << ",";
++        *file_ptr  << m_direction << ",";
++        *file_ptr  << *t_flit << ",";
++        *file_ptr  << get_outport(vc) << ",\n";
+ 
+-            // Wakeup the router in that cycle to perform SA
+-            m_router->schedule_wakeup(Cycles(wait_time));
+-        }
+     }
+ }
+ 
+diff -r 506d20c872c8 -r cc06de2299ee NetworkInterface.cc
+--- a/NetworkInterface.cc	Thu Apr 28 18:19:01 2016 -0400
++++ b/NetworkInterface.cc	Thu Apr 28 18:19:40 2016 -0400
+@@ -269,6 +269,7 @@
+         // NetDest format is used by the routing table
+         // Custom routing algorithms just need destID
+         RouteInfo route;
++        route.src_router = m_router_id;
+         route.net_dest = new_net_msg_ptr->getDestination();
+         route.dest_ni = destID;
+         route.dest_router = m_net_ptr->get_router_id(destID);
+@@ -278,7 +279,10 @@
+         m_net_ptr->increment_injected_packets(vnet);
+         for (int i = 0; i < num_flits; i++) {
+             m_net_ptr->increment_injected_flits(vnet);
+-            flit *fl = new flit(i, vc, vnet, route, num_flits, new_msg_ptr,
++            int id = curCycle() << 16;
++            id += (m_router_id % 256) << 8;
++            id += i;
++            flit *fl = new flit(id, vc, vnet, route, num_flits, new_msg_ptr,
+                 curCycle());
+ 
+             fl->set_delay(curCycle() - ticksToCycles(msg_ptr->getTime()));
+@@ -427,4 +431,3 @@
+ {
+     return new NetworkInterface(this);
+ }
+-
+diff -r 506d20c872c8 -r cc06de2299ee NetworkLink.cc
+--- a/NetworkLink.cc	Thu Apr 28 18:19:01 2016 -0400
++++ b/NetworkLink.cc	Thu Apr 28 18:19:40 2016 -0400
+@@ -30,11 +30,13 @@
+ 
+ #include "mem/ruby/network/garnet2.0/NetworkLink.hh"
+ 
++#include "mem/ruby/network/garnet2.0/GarnetNetwork.hh"
++
+ #include "mem/ruby/network/garnet2.0/CreditLink.hh"
++using namespace std;
+ 
+ NetworkLink::NetworkLink(const Params *p)
+     : ClockedObject(p), Consumer(this), m_id(p->link_id),
+-      m_type(NUM_LINK_TYPES_),
+       m_latency(p->link_latency),
+       linkBuffer(new flitBuffer()), link_consumer(nullptr),
+       link_srcQueue(nullptr), m_link_utilized(0),
+@@ -69,6 +71,16 @@
+         link_consumer->scheduleEventAbsolute(clockEdge(m_latency));
+         m_link_utilized++;
+         m_vc_load[t_flit->get_vc()]++;
++        //Loupe
++        if (t_flit->get_id() != 0) {
++          *loupeFileptr << curCycle() << ",";
++          *loupeFileptr << "Link,";
++          *loupeFileptr << m_id << ",";
++          *loupeFileptr << ",";
++          *loupeFileptr << *t_flit;
++          *loupeFileptr << ",";
++          *loupeFileptr << ",\n";
++        }
+     }
+ }
+ 
+diff -r 506d20c872c8 -r cc06de2299ee NetworkLink.hh
+--- a/NetworkLink.hh	Thu Apr 28 18:19:01 2016 -0400
++++ b/NetworkLink.hh	Thu Apr 28 18:19:40 2016 -0400
+@@ -32,6 +32,7 @@
+ #define __MEM_RUBY_NETWORK_GARNET_FIXED_PIPELINE_NETWORK_LINK_D_HH__
+ 
+ #include <iostream>
++#include <fstream>
+ #include <vector>
+ 
+ #include "mem/ruby/common/Consumer.hh"
+@@ -51,12 +52,15 @@
+ 
+     void setLinkConsumer(Consumer *consumer);
+     void setSourceQueue(flitBuffer *srcQueue);
+-    void setType(link_type type) { m_type = type; }
+-    link_type getType() { return m_type; }
+     void print(std::ostream& out) const {}
+     int get_id() const { return m_id; }
+     void wakeup();
+-
++    //For Loupe
++    void init_loupe_ptr(std::ofstream* Fileptr)
++    {
++        loupeFileptr = Fileptr;
++    }
++    //
+     unsigned int getLinkUtilization() const { return m_link_utilized; }
+     const std::vector<unsigned int> & getVcLoad() const { return m_vc_load; }
+ 
+@@ -70,9 +74,11 @@
+ 
+   private:
+     const int m_id;
+-    link_type m_type;
+     const Cycles m_latency;
+ 
++    //for loupe
++    std::ofstream * loupeFileptr;
++
+     flitBuffer *linkBuffer;
+     Consumer *link_consumer;
+     flitBuffer *link_srcQueue;
+diff -r 506d20c872c8 -r cc06de2299ee RoutingUnit.cc
+--- a/RoutingUnit.cc	Thu Apr 28 18:19:01 2016 -0400
++++ b/RoutingUnit.cc	Thu Apr 28 18:19:40 2016 -0400
+@@ -28,6 +28,8 @@
+  * Authors: Niket Agarwal
+  */
+ 
++
++//test
+ #include "mem/ruby/network/garnet2.0/RoutingUnit.hh"
+ 
+ #include "base/cast.hh"
+diff -r 506d20c872c8 -r cc06de2299ee flit.cc
+--- a/flit.cc	Thu Apr 28 18:19:01 2016 -0400
++++ b/flit.cc	Thu Apr 28 18:19:40 2016 -0400
+@@ -48,7 +48,7 @@
+         m_type = HEAD_TAIL_;
+         return;
+     }
+-    if (id == 0)
++    if (id%8 == 0)
+         m_type = HEAD_;
+     else if (id == (size - 1))
+         m_type = TAIL_;
+@@ -62,20 +62,20 @@
+     m_vc = vc;
+     m_is_free_signal = is_free_signal;
+     m_time = curTime;
++    m_type = CREDIT_HEAD_;
+ }
+ 
+ void
+ flit::print(std::ostream& out) const
+ {
+-    out << "[flit:: ";
+-    out << "Id=" << m_id << " ";
+-    out << "Type=" << m_type << " ";
+-    out << "Vnet=" << m_vnet << " ";
+-    out << "VC=" << m_vc << " ";
+-    out << "Dest NI=" << m_route.dest_ni << " ";
+-    out << "Dest Router=" << m_route.dest_router << " ";
+-    out << "Enqueue Time=" << m_enqueue_time << " ";
+-    out << "]";
++    out << "flit,";
++    out << m_id << ",";
++    out << m_type << ","; //
++    out << m_vnet << ","; //
++    out << m_vc << ",";
++    out << m_route.src_router << ","; //
++    out << m_route.dest_router << ","; //
++    out << m_enqueue_time;
+ }
+ 
+ bool
+
